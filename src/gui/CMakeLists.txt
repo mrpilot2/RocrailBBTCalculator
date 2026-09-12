@@ -4,9 +4,9 @@ SET(CMAKE_AUTOUIC_SEARCH_PATHS ${CMAKE_CURRENT_SOURCE_DIR}/forms)
 SET(CMAKE_AUTOMOC ON)
 SET(CMAKE_AUTORCC ON)
 
-FIND_PACKAGE(Qt5LinguistTools REQUIRED)
+FIND_PACKAGE(Qt6LinguistTools REQUIRED)
 
-QT5_ADD_TRANSLATION(QM
+QT6_ADD_TRANSLATION(QM
   translations/rocrailBBT_de.ts
   translations/rocrailBBT_en.ts
 )
@@ -44,7 +44,7 @@ TARGET_INCLUDE_DIRECTORIES(bbtCalculatorGui
 
 TARGET_LINK_LIBRARIES(bbtCalculatorGui
   PUBLIC
-    Qt5::Widgets
+    Qt6::Widgets
 )
 
 TARGET_COMPILE_FEATURES(bbtCalculatorGui

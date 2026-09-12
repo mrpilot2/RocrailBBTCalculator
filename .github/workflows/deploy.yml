@@ -20,7 +20,7 @@ jobs:
 
       # Shared Release with packaging
       - name: "Shared Release: Configure and build with preset"
-        run: cmake --workflow --preset workflow-ci-deploy-unix-shared-release
+        run: cmake --workflow --preset workflow-ci-deploy-windows-shared-release
         env:
           QT_QPA_PLATFORM: offscreen
 
@@ -36,6 +36,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          pattern: "./build/ci-deploy-unix-shared-release/aide*.tar.gz"
+          pattern: "./build/ci-deploy-windows-shared-release/aide*.tar.gz"
           github-token: ${{ secrets.GITHUB_TOKEN }}
           release-url: ${{ steps.get_release.outputs.upload_url }}
