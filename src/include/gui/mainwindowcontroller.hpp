@@ -1,8 +1,8 @@
 
 #pragma once
 
-#include <QtCore/QObject>
 #include <QtCore/QItemSelection>
+#include <QtCore/QObject>
 
 namespace BBTCalculator
 {
@@ -18,7 +18,7 @@ namespace BBTCalculator
     {
         class MainWindowController : public QObject
         {
-        Q_OBJECT
+            Q_OBJECT
         public:
             MainWindowController();
 

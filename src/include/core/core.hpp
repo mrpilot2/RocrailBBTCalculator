@@ -10,7 +10,6 @@
 #include "gui/blockmodel.hpp"
 #include "gui/locmodel.hpp"
 #include "gui/routemodel.hpp"
-
 #include "workspace.hpp"
 
 namespace BBTCalculator
@@ -51,7 +50,8 @@ namespace BBTCalculator
         private:
             void setupTranslator();
 
-            void filterBlockAndRouteByMainline(QSortFilterProxyModel* model, int column);
+            void filterBlockAndRouteByMainline(QSortFilterProxyModel* model,
+                                               int column);
 
             void loadLastOpenWorkspace();
 

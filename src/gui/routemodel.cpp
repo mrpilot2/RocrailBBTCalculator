@@ -2,9 +2,8 @@
 
 #include "routemodel.hpp"
 
-#include <QModelIndex>
-
 #include <QApplication>
+#include <QModelIndex>
 #include <QtGui/QIcon>
 
 using BBTCalculator::Core::RouteList;
@@ -15,8 +14,7 @@ RouteModel::RouteModel(RouteList& lList, QObject* parent)
     , routeList{lList}
     , failIcon{QIcon::fromTheme("fail", QIcon(":/icons/fail"))}
     , passIcon{QIcon::fromTheme("pass", QIcon(":/icons/pass"))}
-{
-}
+{}
 
 int RouteModel::rowCount(const QModelIndex& parent) const
 {
@@ -33,13 +31,9 @@ QVariant RouteModel::data(const QModelIndex& index, int role) const
     if (!index.isValid()) // TODO: check index in range
         return QVariant();
 
-    if (role == Qt::TextAlignmentRole) {
-        return Qt::AlignCenter;
-    }
-    if (role == Qt::DisplayRole)
-    {
-        switch (static_cast<RouteViewColumns>(index.column()))
-        {
+    if (role == Qt::TextAlignmentRole) { return Qt::AlignCenter; }
+    if (role == Qt::DisplayRole) {
+        switch (static_cast<RouteViewColumns>(index.column())) {
         case RouteViewColumns::NAME:
             return routeList.at(static_cast<unsigned long>(index.row())).id;
         case RouteViewColumns::FROM_BLOCK:
@@ -52,52 +46,41 @@ QVariant RouteModel::data(const QModelIndex& index, int role) const
             return QVariant();
         }
     }
-    if (role == Qt::ToolTipRole)
-    {
-        if (index.column() == static_cast<int>(RouteViewColumns::STRAIGHT))
-        {
+    if (role == Qt::ToolTipRole) {
+        if (index.column() == static_cast<int>(RouteViewColumns::STRAIGHT)) {
             return routeList.at(static_cast<unsigned long>(index.row()))
                 .isCompletelyStraight;
         }
-        if (index.column() == static_cast<int>(RouteViewColumns::MAINLINE))
-        {
+        if (index.column() == static_cast<int>(RouteViewColumns::MAINLINE)) {
             return routeList.at(static_cast<unsigned long>(index.row()))
                 .isOnlyMainline;
         }
-        if (index.column() == static_cast<int>(RouteViewColumns::REDUCEV))
-        {
+        if (index.column() == static_cast<int>(RouteViewColumns::REDUCEV)) {
             return routeList.at(static_cast<unsigned long>(index.row()))
                 .shallReduceVelocity;
         }
     }
-    if (role == Qt::DecorationRole)
-    {
-        if (index.column() == static_cast<int>(RouteViewColumns::STRAIGHT))
-        {
+    if (role == Qt::DecorationRole) {
+        if (index.column() == static_cast<int>(RouteViewColumns::STRAIGHT)) {
             const bool isStraight{
                 routeList.at(static_cast<unsigned long>(index.row()))
                     .isCompletelyStraight};
 
-            return isStraight ? passIcon
-                              : failIcon;
+            return isStraight ? passIcon : failIcon;
         }
-        if (index.column() == static_cast<int>(RouteViewColumns::MAINLINE))
-        {
+        if (index.column() == static_cast<int>(RouteViewColumns::MAINLINE)) {
             const bool isMainLine{
                 routeList.at(static_cast<unsigned long>(index.row()))
                     .isOnlyMainline};
 
-            return isMainLine ? passIcon
-                              : failIcon;
+            return isMainLine ? passIcon : failIcon;
         }
-        if (index.column() == static_cast<int>(RouteViewColumns::REDUCEV))
-        {
+        if (index.column() == static_cast<int>(RouteViewColumns::REDUCEV)) {
             const bool reduceV{
                 routeList.at(static_cast<unsigned long>(index.row()))
                     .shallReduceVelocity};
 
-            return reduceV ? passIcon
-                           : failIcon;
+            return reduceV ? passIcon : failIcon;
         }
     }
     return QVariant();
@@ -109,10 +92,8 @@ QVariant RouteModel::headerData(int section, Qt::Orientation orientation,
     if (role != Qt::DisplayRole) // TODO: check index in rage
         return QVariant();
 
-    if (orientation == Qt::Horizontal)
-    {
-        switch (static_cast<RouteViewColumns>(section))
-        {
+    if (orientation == Qt::Horizontal) {
+        switch (static_cast<RouteViewColumns>(section)) {
         case RouteViewColumns::MAINLINE:
             return QApplication::translate("RouteModel", "Mainline");
         case RouteViewColumns::NAME:

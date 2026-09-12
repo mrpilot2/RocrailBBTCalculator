@@ -40,5 +40,5 @@ namespace BBTCalculator
             QIcon failIcon;
             QIcon passIcon;
         };
-    }
-}
+    } // namespace Gui
+} // namespace BBTCalculator

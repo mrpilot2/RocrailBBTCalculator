@@ -4,7 +4,6 @@
 
 #include <QApplication>
 #include <QModelIndex>
-
 #include <QtGui/QIcon>
 
 using BBTCalculator::Core::LocList;
@@ -15,8 +14,7 @@ LocModel::LocModel(LocList& lList, QObject* parent)
     , locList{lList}
     , failIcon{QIcon::fromTheme("fail", QIcon(":/icons/fail"))}
     , passIcon{QIcon::fromTheme("pass", QIcon(":/icons/pass"))}
-{
-}
+{}
 
 int LocModel::rowCount(const QModelIndex& parent) const
 {
@@ -33,14 +31,9 @@ QVariant LocModel::data(const QModelIndex& index, int role) const
     if (!index.isValid()) // TODO: check index in range
         return QVariant();
 
-    if (role == Qt::TextAlignmentRole)
-    {
-        return Qt::AlignCenter;
-    }
-    if (role == Qt::DisplayRole)
-    {
-        switch (static_cast<LocViewColumns>(index.column()))
-        {
+    if (role == Qt::TextAlignmentRole) { return Qt::AlignCenter; }
+    if (role == Qt::DisplayRole) {
+        switch (static_cast<LocViewColumns>(index.column())) {
         case LocViewColumns::NAME:
             return locList.at(static_cast<unsigned long>(index.row())).name;
         case LocViewColumns::BBT_STEPS:
@@ -56,18 +49,15 @@ QVariant LocModel::data(const QModelIndex& index, int role) const
         }
     }
     if (role == Qt::ToolTipRole &&
-        index.column() == static_cast<int>(LocViewColumns::BBT))
-    {
+        index.column() == static_cast<int>(LocViewColumns::BBT)) {
         return locList.at(static_cast<unsigned long>(index.row())).useBBT;
     }
     if (role == Qt::DecorationRole &&
-        index.column() == static_cast<int>(LocViewColumns::BBT))
-    {
+        index.column() == static_cast<int>(LocViewColumns::BBT)) {
         const bool useBBT{
             locList.at(static_cast<unsigned long>(index.row())).useBBT};
 
-        return useBBT ? passIcon
-                      : failIcon;
+        return useBBT ? passIcon : failIcon;
     }
     return QVariant();
 }
@@ -78,10 +68,8 @@ QVariant LocModel::headerData(int section, Qt::Orientation orientation,
     if (role != Qt::DisplayRole) // TODO: check index in rage
         return QVariant();
 
-    if (orientation == Qt::Horizontal)
-    {
-        switch (static_cast<LocViewColumns>(section))
-        {
+    if (orientation == Qt::Horizontal) {
+        switch (static_cast<LocViewColumns>(section)) {
         case LocViewColumns::BBT:
             return QApplication::translate("LocModel", "BBT");
         case LocViewColumns::NAME:

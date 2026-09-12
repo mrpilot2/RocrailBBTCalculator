@@ -4,11 +4,10 @@
 
 #include <workspace.hpp>
 
-using BBTCalculator::Core::Workspace;
-using BBTCalculator::Core::LocList;
 using BBTCalculator::Core::BlockList;
+using BBTCalculator::Core::LocList;
 using BBTCalculator::Core::RouteList;
-
+using BBTCalculator::Core::Workspace;
 
 void Workspace::setRootPath(const QDir& root)
 {
@@ -26,12 +25,10 @@ void Workspace::setLocList(const LocList& lList)
 {
     locList = lList;
 
-    for (auto& loc : locList)
-    {
+    for (auto& loc : locList) {
         QFileInfo fileInfo{getImagePath() + loc.imageName};
 
-        if (fileInfo.exists() && fileInfo.isFile())
-        {
+        if (fileInfo.exists() && fileInfo.isFile()) {
             loc.locImage = QPixmap{fileInfo.absoluteFilePath()};
         }
     }
