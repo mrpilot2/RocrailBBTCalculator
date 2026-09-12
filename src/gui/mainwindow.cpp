@@ -73,7 +73,7 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
     {
         auto resizeEvent = dynamic_cast<QResizeEvent*>(event);
 
-        if (ui->locImage->pixmap() != nullptr)
+        if (!ui->locImage->pixmap().isNull())
         {
             ui->locImage->setPixmap(originalLocImage.scaled(
                 resizeEvent->size(), Qt::KeepAspectRatio));
@@ -142,7 +142,7 @@ void MainWindow::connectSignals()
 {
     connect(ui->actionOpenWorkspace, &QAction::triggered, controller,
             &MainWindowController::onOpenWorkspaceClicked);
-    connect(ui->showMainlineOnly, &QCheckBox::stateChanged, controller,
+    connect(ui->showMainlineOnly, &QCheckBox::checkStateChanged, controller,
             &MainWindowController::onFilterMainlineStateChanged);
     connect(ui->calculateBBT, &QPushButton::clicked, controller,
             &MainWindowController::onUserRequestsBBTCalculation);

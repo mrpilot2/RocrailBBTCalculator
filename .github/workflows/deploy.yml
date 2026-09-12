@@ -20,7 +20,7 @@ jobs:
 
       # Shared Release with packaging
       - name: "Shared Release: Configure and build with preset"
-        run: cmake --workflow --preset workflow-ci-deploy-unix-shared-release
+        run: cmake --workflow --preset workflow-ci-deploy-windows-shared-release
         env:
           QT_QPA_PLATFORM: offscreen
 

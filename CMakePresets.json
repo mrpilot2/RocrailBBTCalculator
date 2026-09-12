@@ -176,6 +176,7 @@
     { "name": "ci-license-check-unix", "inherits": ["clang","static","release", "platform-unix"], "cacheVariables": { "AIDE_CHECK_LICENSES_AVAILABILITY": "ON" } },
 
     { "name": "ci-deploy-unix-shared-release", "inherits": ["clang","shared","release", "test-on-ci", "platform-unix"], "cacheVariables": { "AIDE_PACKAGING_MAINTAINER_MODE": "ON" } },
+    { "name": "ci-deploy-windows-shared-release", "inherits": ["shared","release", "test-on-ci", "platform-windows-ci"], "cacheVariables": { "AIDE_PACKAGING_MAINTAINER_MODE": "ON" } },
 
     { "name": "dev-windows-static",   "inherits": ["static","role-dev", "platform-windows"] },
     { "name": "dev-windows-shared",   "inherits": ["shared","role-dev", "platform-windows"] },
@@ -220,6 +221,7 @@
     { "name": "build-ci-doxygen-unix", "configurePreset": "ci-doxygen-unix", "jobs": 0, "targets": ["doxygen-docs"] },
 
     { "name": "build-ci-deploy-unix-shared-release", "configurePreset": "ci-deploy-unix-shared-release", "jobs": 0, "targets": ["package"] },
+    { "name": "build-ci-deploy-windows-shared-release", "configurePreset": "ci-deploy-windows-shared-release", "jobs": 0, "targets": ["package"] },
 
     { "name": "build-dev-windows-static-debug",   "configurePreset": "dev-windows-static",   "configuration": "Debug" },
     { "name": "build-dev-windows-shared-debug",   "configurePreset": "dev-windows-shared",   "configuration": "Debug" },
@@ -531,6 +533,14 @@
       "steps": [
         { "type": "configure", "name": "ci-deploy-unix-shared-release" },
         { "type": "build", "name": "build-ci-deploy-unix-shared-release" }
+      ]
+    },
+
+    {
+      "name": "workflow-ci-deploy-windows-shared-release",
+      "steps": [
+        { "type": "configure", "name": "ci-deploy-windows-shared-release" },
+        { "type": "build", "name": "build-ci-deploy-windows-shared-release" }
       ]
     }
 

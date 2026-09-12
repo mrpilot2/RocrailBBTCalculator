@@ -1,77 +1,43 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.12)
 
-FIND_PACKAGE(Qt5 COMPONENTS Widgets Xml REQUIRED)
+INCLUDE(GNUInstallDirs)
+
+FIND_PACKAGE(Qt6 COMPONENTS Widgets Xml REQUIRED)
 
 ADD_SUBDIRECTORY(core)
 ADD_SUBDIRECTORY(gui)
 
-ADD_EXECUTABLE(rocrailBBTCalculator)
-
-TARGET_SOURCES(rocrailBBTCalculator
-  PRIVATE
-    main.cpp
+QT_ADD_EXECUTABLE(rocrailBBTCalculator MACOSX_BUNDLE WIN32
+  main.cpp
 )
 
 TARGET_LINK_LIBRARIES(rocrailBBTCalculator
   PRIVATE
-    Qt5::Widgets
+    Qt6::Widgets
 
     bbtCalculatorCore
 )
 
-INSTALL(TARGETS rocrailBBTCalculator
-  RUNTIME DESTINATION bin
+if(APPLE)
+  # Assume targeting macOS to keep this example simple
+  set_target_properties(rocrailBBTCalculator PROPERTIES
+  INSTALL_RPATH @executable_path/../Frameworks
+)
+endif()
+
+install(TARGETS rocrailBBTCalculator
+  BUNDLE DESTINATION .
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
-IF (WIN32)
-  INCLUDE(${CMAKE_SOURCE_DIR}/cmake/windeployqt.cmake)
+# Additional Qt-specific logic to be executed after the
+# above target install is carried out
+qt_generate_deploy_app_script(
+  TARGET rocrailBBTCalculator
+  OUTPUT_SCRIPT deployApp
+)
 
-  WINDEPLOYQT(rocrailBBTCalculator)
-
-  INSTALL(
-    FILES
-      $<TARGET_FILE_DIR:rocrailBBTCalculator>/Qt5Core.dll
-      $<TARGET_FILE_DIR:rocrailBBTCalculator>/Qt5Gui.dll
-      $<TARGET_FILE_DIR:rocrailBBTCalculator>/Qt5Svg.dll
-      $<TARGET_FILE_DIR:rocrailBBTCalculator>/Qt5Widgets.dll
-      $<TARGET_FILE_DIR:rocrailBBTCalculator>/Qt5Xml.dll
-    DESTINATION bin
-  )
-  INSTALL(
-    FILES
-      $<TARGET_FILE_DIR:rocrailBBTCalculator>/iconengines/qsvgicon.dll
-    DESTINATION bin/iconengines
-  )
-  INSTALL(
-    FILES
-      $<TARGET_FILE_DIR:rocrailBBTCalculator>/imageformats/qgif.dll
-      $<TARGET_FILE_DIR:rocrailBBTCalculator>/imageformats/qicns.dll
-      $<TARGET_FILE_DIR:rocrailBBTCalculator>/imageformats/qico.dll
-      $<TARGET_FILE_DIR:rocrailBBTCalculator>/imageformats/qjpeg.dll
-      $<TARGET_FILE_DIR:rocrailBBTCalculator>/imageformats/qsvg.dll
-      $<TARGET_FILE_DIR:rocrailBBTCalculator>/imageformats/qtga.dll
-      $<TARGET_FILE_DIR:rocrailBBTCalculator>/imageformats/qtiff.dll
-      $<TARGET_FILE_DIR:rocrailBBTCalculator>/imageformats/qwbmp.dll
-      $<TARGET_FILE_DIR:rocrailBBTCalculator>/imageformats/qwebp.dll
-    DESTINATION bin/imageformats
-  )
-  INSTALL(
-    FILES
-      $<TARGET_FILE_DIR:rocrailBBTCalculator>/platforms/qwindows.dll
-    DESTINATION bin/platforms
-  )
-  INSTALL(
-    FILES
-      $<TARGET_FILE_DIR:rocrailBBTCalculator>/styles/qwindowsvistastyle.dll
-    DESTINATION bin/styles
-  )
-  INSTALL(
-    FILES
-      $<TARGET_FILE_DIR:rocrailBBTCalculator>/translations/qt_de.qm
-      $<TARGET_FILE_DIR:rocrailBBTCalculator>/translations/qt_en.qm
-    DESTINATION bin/translations
-  )
-ENDIF (WIN32)
+install(SCRIPT "${deployApp}")
 
 SET(CPACK_PACKAGE_NAME "rocrailBBTCalculator")
 SET(CPACK_PACKAGE_INSTALL_DIRECTORY "rocrailBBTCalculator")
