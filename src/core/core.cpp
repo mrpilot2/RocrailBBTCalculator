@@ -157,8 +157,8 @@ void Core::filterRouteByMainline(int column)
 
 void Core::removeBlockAndRouteMainlineFilter()
 {
-    blockSortFilterModel->setFilterRegExp("");
-    routeSortFilterModel->setFilterRegExp("");
+    blockSortFilterModel->setFilterRegularExpression("");
+    routeSortFilterModel->setFilterRegularExpression("");
 }
 
 void Core::filterBlockAndRouteByMainline(QSortFilterProxyModel* model,
@@ -167,7 +167,7 @@ void Core::filterBlockAndRouteByMainline(QSortFilterProxyModel* model,
     if (model != nullptr)
     {
         model->setFilterKeyColumn(column);
-        model->setFilterRegExp("true");
+        model->setFilterRegularExpression("true");
     }
 }
 

@@ -18,8 +18,8 @@ using BBTCalculator::Core::Loc;
 PlanParser::PlanParser(std::string f)
     : file{QString::fromStdString(f)}
 {
-    file.open(QIODevice::ReadWrite);
-    if (!file.isOpen() || !file.isReadable())
+    const bool opened = file.open(QIODevice::ReadWrite);
+    if (!opened || !file.isReadable())
     {
         // TODO: handle error case
     }
