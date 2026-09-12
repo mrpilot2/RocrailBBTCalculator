@@ -4,7 +4,6 @@
 
 #include <QApplication>
 #include <QModelIndex>
-
 #include <QtGui/QIcon>
 
 using BBTCalculator::Core::BBTList;
@@ -15,8 +14,7 @@ BBTModel::BBTModel(BBTList lList, QObject* parent)
     , bbtList{lList}
     , failIcon{QIcon::fromTheme("fail", QIcon(":/icons/fail"))}
     , passIcon{QIcon::fromTheme("pass", QIcon(":/icons/pass"))}
-{
-}
+{}
 
 int BBTModel::rowCount(const QModelIndex& parent) const
 {
@@ -33,14 +31,10 @@ QVariant BBTModel::data(const QModelIndex& index, int role) const
     if (!index.isValid()) // TODO: check index in range
         return QVariant();
 
-    if (role == Qt::TextAlignmentRole) {
-        return Qt::AlignCenter;
-    }
+    if (role == Qt::TextAlignmentRole) { return Qt::AlignCenter; }
 
-    if (role == Qt::DisplayRole)
-    {
-        switch (static_cast<BBTViewColumns>(index.column()))
-        {
+    if (role == Qt::DisplayRole) {
+        switch (static_cast<BBTViewColumns>(index.column())) {
         case BBTViewColumns::BLOCK:
             return bbtList.at(static_cast<unsigned long>(index.row())).block;
         case BBTViewColumns::FROM_BLOCK:
@@ -62,11 +56,10 @@ QVariant BBTModel::data(const QModelIndex& index, int role) const
     }
     if (role == Qt::ToolTipRole &&
         index.column() == static_cast<int>(BBTViewColumns::FIXED)) {
-        return  bbtList.at(static_cast<unsigned long>(index.row())).isFixed;
+        return bbtList.at(static_cast<unsigned long>(index.row())).isFixed;
     }
     if (role == Qt::DecorationRole &&
-        index.column() == static_cast<int>(BBTViewColumns::FIXED))
-    {
+        index.column() == static_cast<int>(BBTViewColumns::FIXED)) {
         const bool isFixed{
             bbtList.at(static_cast<unsigned long>(index.row())).isFixed};
 
@@ -81,10 +74,8 @@ QVariant BBTModel::headerData(int section, Qt::Orientation orientation,
     if (role != Qt::DisplayRole) // TODO: check index in rage
         return QVariant();
 
-    if (orientation == Qt::Horizontal)
-    {
-        switch (static_cast<BBTViewColumns>(section))
-        {
+    if (orientation == Qt::Horizontal) {
+        switch (static_cast<BBTViewColumns>(section)) {
         case BBTViewColumns::BLOCK:
             return QApplication::translate("BBTModel", "Block");
         case BBTViewColumns::FROM_BLOCK:

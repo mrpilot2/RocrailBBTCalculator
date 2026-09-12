@@ -33,7 +33,8 @@ namespace BBTCalculator
 
             QVariant data(const QModelIndex& index, int role) const override;
 
-            QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+            QVariant headerData(int section, Qt::Orientation orientation,
+                                int role) const override;
 
         private:
             Core::LocList& locList;
@@ -41,6 +42,5 @@ namespace BBTCalculator
             QIcon failIcon;
             QIcon passIcon;
         };
-    }
-}
-
+    } // namespace Gui
+} // namespace BBTCalculator

@@ -11,8 +11,7 @@ using BBTCalculator::Gui::MainWindowController;
 MainWindowController::MainWindowController()
     : core{nullptr}
     , currentlySelectedLocName{""}
-{
-}
+{}
 
 void MainWindowController::setCore(BBTCalculator::Core::Core* c)
 {
@@ -27,8 +26,7 @@ void MainWindowController::onOpenWorkspaceClicked(bool)
 void MainWindowController::onLocSelectionChanged(
     const QItemSelection& selected, const QItemSelection& deselected)
 {
-    if (!selected.isEmpty())
-    {
+    if (!selected.isEmpty()) {
         const QItemSelectionRange& singleRow{selected.at(0)};
 
         const QString locName{singleRow.indexes()
@@ -43,15 +41,12 @@ void MainWindowController::onLocSelectionChanged(
 
 void MainWindowController::onFilterMainlineStateChanged(int state)
 {
-    if (state == Qt::Checked)
-    {
+    if (state == Qt::Checked) {
         core->filterBlockByMainline(
             static_cast<int>(BlockViewColumns::MAINLINE));
         core->filterRouteByMainline(
             static_cast<int>(RouteViewColumns::MAINLINE));
-    }
-    else
-    {
+    } else {
         core->removeBlockAndRouteMainlineFilter();
     }
 }

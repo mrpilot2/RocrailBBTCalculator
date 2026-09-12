@@ -1,9 +1,10 @@
 
 #pragma once
 
+#include <vector>
+
 #include <QPixmap>
 #include <QString>
-#include <vector>
 
 namespace BBTCalculator
 {
@@ -11,9 +12,9 @@ namespace BBTCalculator
     {
         struct BBT
         {
-            QString block = "";
+            QString block     = "";
             QString fromBlock = "";
-            QString route = "";
+            QString route     = "";
 
             int interval{0};
             int steps{0};
@@ -28,7 +29,7 @@ namespace BBTCalculator
 
         struct Loc
         {
-            QString name = "";
+            QString name      = "";
             QString imageName = "";
 
             bool useBBT{false};
@@ -61,10 +62,10 @@ namespace BBTCalculator
             QString id = "";
 
             QString fromBlock = "";
-            QString toBlock = "";
+            QString toBlock   = "";
 
             QString fromBlockEnterSide = "";
-            QString toBlockEnterSide = "";
+            QString toBlockEnterSide   = "";
 
             bool shallReduceVelocity{true};
 

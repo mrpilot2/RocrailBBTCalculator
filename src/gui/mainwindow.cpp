@@ -2,7 +2,6 @@
 #include "mainwindow.hpp"
 
 #include <QResizeEvent>
-
 #include <QtCore/QSettings>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMessageBox>
@@ -69,12 +68,10 @@ void MainWindow::setController(MainWindowController* contr)
 
 bool MainWindow::eventFilter(QObject* watched, QEvent* event)
 {
-    if (watched == ui->locImage && event->type() == QEvent::Resize)
-    {
+    if (watched == ui->locImage && event->type() == QEvent::Resize) {
         auto resizeEvent = dynamic_cast<QResizeEvent*>(event);
 
-        if (!ui->locImage->pixmap().isNull())
-        {
+        if (!ui->locImage->pixmap().isNull()) {
             ui->locImage->setPixmap(originalLocImage.scaled(
                 resizeEvent->size(), Qt::KeepAspectRatio));
             return true;
@@ -224,8 +221,7 @@ void MainWindow::setRouteTableModel(QAbstractItemModel* model)
 
 void MainWindow::displayLocImage(QPixmap locImage)
 {
-    if (locImage.isNull())
-    {
+    if (locImage.isNull()) {
         ui->locImage->clear();
         return;
     }
