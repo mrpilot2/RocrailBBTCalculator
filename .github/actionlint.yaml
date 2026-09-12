@@ -1,0 +1,5 @@
+self-hosted-runner:
+  # ubuntu-26.04 is a GitHub-hosted runner label in public preview and is not
+  # yet recognized by the actionlint version pinned in .pre-commit-config.yaml.
+  labels:
+    - ubuntu-26.04

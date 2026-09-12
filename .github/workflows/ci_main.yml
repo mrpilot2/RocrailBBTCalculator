@@ -1,0 +1,32 @@
+name: CI - Main
+
+on:
+  push:
+  pull_request:
+    branches:
+      - develop
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  clang_format:
+    uses: ./.github/workflows/clang-format.yml
+    secrets: inherit
+
+  build_and_test:
+    needs: clang_format
+    if: ${{ needs.clang_format.outputs.pushed == 'false' }}
+    uses: ./.github/workflows/build_and_test.yml
+
+  coverage:
+    needs: clang_format
+    if: ${{ needs.clang_format.outputs.pushed == 'false' }}
+    uses: ./.github/workflows/coverage.yml
+
+  static_analyzer:
+    needs: clang_format
+    if: ${{ needs.clang_format.outputs.pushed == 'false' }}
+    uses: ./.github/workflows/static_analyzer.yml

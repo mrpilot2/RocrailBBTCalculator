@@ -1,0 +1,47 @@
+name: CI - Static Analyzer
+
+on:
+  workflow_call:
+
+jobs:
+  build:
+    name: ${{ matrix.os }}, ${{ matrix.cmake_name }}, ${{ matrix.qt_name }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-24.04]
+        cmake: [4.x]
+        qt: [5.*]
+
+        include:
+          - cmake: 4.x
+            cmake_name: CMake Latest
+
+          - qt: 5.*
+            qt_name: Qt6
+
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - id: setup_deps
+        uses: ./.github/actions/setup_deps
+        with:
+          cmake_version: ${{matrix.cmake}}
+          qt_version: ${{ matrix.qt }}
+
+      - name: Install apt dependencies
+        if: runner.os == 'Linux'
+        run: sudo apt install cppcheck
+
+      # Static Debug
+      - name: "Static Debug: Static analysis"
+        run: cmake --workflow --preset=workflow-ci-static-unix-static-debug
+        env:
+          QT_QPA_PLATFORM: offscreen
