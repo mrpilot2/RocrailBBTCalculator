@@ -1,0 +1,538 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 25,
+    "patch": 0
+  },
+
+  "configurePresets": [
+
+    {
+      "name": "base",
+      "hidden": true,
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "installDir": "${sourceDir}/build/install/${presetName}",
+      "cacheVariables": {
+        "CMAKE_FIND_PACKAGE_PREFER_CONFIG": "TRUE",
+        "CMAKE_POSITION_INDEPENDENT_CODE": "TRUE",
+        "CMAKE_CXX_STANDARD": "20"
+      }
+    },
+
+    {
+      "name": "platform-unix",
+      "hidden": true,
+      "inherits": "base",
+      "condition": {
+        "type": "inList",
+        "string": "${hostSystemName}",
+        "list": ["Linux", "Darwin"]
+      },
+      "generator": "Ninja"
+    },
+
+    {
+      "name": "platform-windows",
+      "hidden": true,
+      "inherits": "base",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
+      "generator": "Visual Studio 17 2022",
+      "architecture": "x64"
+    },
+
+    {
+      "name": "platform-windows-ci",
+      "hidden": true,
+      "inherits": "base",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
+      "generator": "Ninja"
+    },
+
+    { "name": "clang", "hidden": true,
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++"
+      }
+    },
+
+    { "name": "debug", "hidden": true,
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
+    },
+
+    { "name": "release", "hidden": true,
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "RelWithDebInfo" }
+    },
+
+    { "name": "shared", "hidden": true,
+      "cacheVariables": { "BUILD_SHARED_LIBS": "ON" }
+    },
+
+    { "name": "static", "hidden": true,
+      "cacheVariables": { "BUILD_SHARED_LIBS": "OFF" }
+    },
+
+    { "name": "static-analysis", "hidden": true,
+      "cacheVariables": {
+        "AIDE_ENABLE_CLANG_TIDY": "ON",
+        "AIDE_ENABLE_CPPCHECK": "ON"
+      }
+    },
+
+    { "name": "werror", "hidden": true,
+      "cacheVariables": { "AIDE_WARNINGS_AS_ERRORS": "ON" }
+    },
+
+    { "name": "sanitizers", "hidden": true,
+      "cacheVariables": {
+        "AIDE_ENABLE_SANITIZER_ADDRESS": "ON",
+        "AIDE_ENABLE_SANITIZER_UNDEFINED": "ON"
+      },
+      "environment": {
+        "ASAN_OPTIONS": "detect_odr_violation=0:detect_stack_use_after_return=1:detect_leaks=0",
+        "LSAN_OPTIONS": "suppressions=${sourceDir}/lsan.supp",
+        "UBSAN_OPTIONS": "print_stacktrace=1"
+      }
+    },
+    {
+      "name": "coverage",
+      "hidden": true,
+      "cacheVariables": {
+        "AIDE_ENABLE_COVERAGE": "ON",
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_CXX_COMPILER": "g++"
+      }
+    },
+    { "name": "abi-check", "hidden": true,
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_CXX_COMPILER": "g++",
+        "aide_ENABLE_ABI_COMPLIANCE_CHECK": "ON",
+        "AIDE_PACKAGING_MAINTAINER_MODE": "ON"
+      }
+    },
+
+    { "name": "codeql", "hidden": true,
+      "cacheVariables": { "AIDE_ENABLE_COVERAGE": "ON" }
+    },
+
+    { "name": "doxygen", "hidden": true,
+      "cacheVariables": { "AIDE_ENABLE_DOXYGEN": "ON" }
+    },
+    { "name": "test-on-ci", "hidden": true,
+      "cacheVariables": { "AIDE_UNIT_TESTS_RUN_ON_CI": "ON" }
+    },
+
+    { "name": "role-client", "hidden": true },
+
+    { "name": "role-dev", "hidden": true,
+      "inherits": ["werror", "sanitizers", "coverage", "static-analysis"]
+    },
+
+    { "name": "role-ci-strict", "hidden": true,
+      "inherits": ["werror", "sanitizers", "test-on-ci"]
+    },
+
+    { "name": "role-ci-static", "hidden": true,
+      "inherits": ["werror", "static-analysis", "test-on-ci"]
+    },
+
+    { "name": "dev-unix-static-debug",   "inherits": ["clang","static","debug","role-dev", "platform-unix"] },
+    { "name": "dev-unix-static-release", "inherits": ["clang","static","release","role-dev", "platform-unix"] },
+    { "name": "dev-unix-shared-debug",   "inherits": ["clang","shared","debug","role-dev", "platform-unix"] },
+    { "name": "dev-unix-shared-release", "inherits": ["clang","shared","release","role-dev", "platform-unix"] },
+
+    { "name": "client-unix-static-debug",   "inherits": ["clang","static","debug","role-client", "platform-unix"] },
+    { "name": "client-unix-static-release", "inherits": ["clang","static","release","role-client", "platform-unix"] },
+    { "name": "client-unix-shared-debug",   "inherits": ["clang","shared","debug","role-client", "platform-unix"] },
+    { "name": "client-unix-shared-release", "inherits": ["clang","shared","release","role-client", "platform-unix"] },
+
+    { "name": "ci-strict-unix-static-debug",   "inherits": ["clang","static","debug","role-ci-strict", "platform-unix"], "cacheVariables": { "CMAKE_DEBUG_POSTFIX": "_d_static", "CMAKE_VERIFY_INTERFACE_HEADER_SETS": "ON" } },
+    { "name": "ci-strict-unix-static-release", "inherits": ["clang","static","release","role-ci-strict", "platform-unix"], "cacheVariables": { "CMAKE_RELEASE_POSTFIX": "_static" } },
+    { "name": "ci-strict-unix-shared-debug",   "inherits": ["clang","shared","debug","role-ci-strict", "platform-unix"], "cacheVariables": { "CMAKE_DEBUG_POSTFIX": "_d" } },
+    { "name": "ci-strict-unix-shared-release", "inherits": ["clang","shared","release","role-ci-strict", "platform-unix"] },
+
+    { "name": "ci-coverage-unix", "inherits": ["static","debug","coverage", "platform-unix"] },
+
+    { "name": "ci-static-unix-static-debug",   "inherits": ["clang","static","debug","role-ci-static", "platform-unix"] },
+    { "name": "ci-static-unix-static-release", "inherits": ["clang","static","release","role-ci-static", "platform-unix"] },
+    { "name": "ci-static-unix-shared-debug",   "inherits": ["clang","shared","debug","role-ci-static", "platform-unix"] },
+    { "name": "ci-static-unix-shared-release", "inherits": ["clang","shared","release","role-ci-static", "platform-unix"] },
+
+    { "name": "ci-abi-check-unix-shared-debug",   "inherits": ["shared","debug","abi-check", "platform-unix"], "cacheVariables": { "CMAKE_DEBUG_POSTFIX": "_d" } },
+
+    { "name": "ci-codeql-unix-debug", "inherits": ["clang","static","debug","codeql", "platform-unix"] },
+
+    { "name": "ci-doxygen-unix", "inherits": ["clang","static","release","doxygen", "platform-unix"] },
+
+    { "name": "ci-license-check-unix", "inherits": ["clang","static","release", "platform-unix"], "cacheVariables": { "AIDE_CHECK_LICENSES_AVAILABILITY": "ON" } },
+
+    { "name": "ci-deploy-unix-shared-release", "inherits": ["clang","shared","release", "test-on-ci", "platform-unix"], "cacheVariables": { "AIDE_PACKAGING_MAINTAINER_MODE": "ON" } },
+
+    { "name": "dev-windows-static",   "inherits": ["static","role-dev", "platform-windows"] },
+    { "name": "dev-windows-shared",   "inherits": ["shared","role-dev", "platform-windows"] },
+
+    { "name": "client-windows-static",   "inherits": ["static","role-client", "platform-windows"] },
+    { "name": "client-windows-shared",   "inherits": ["shared","role-client", "platform-windows"] },
+
+    { "name": "ci-strict-windows-static-debug",   "inherits": ["static","debug","role-ci-strict", "platform-windows-ci"] },
+    { "name": "ci-strict-windows-static-release", "inherits": ["static","release","role-ci-strict", "platform-windows-ci"] },
+    { "name": "ci-strict-windows-shared-debug",   "inherits": ["shared","debug","role-ci-strict", "platform-windows-ci"] },
+    { "name": "ci-strict-windows-shared-release", "inherits": ["shared","release","role-ci-strict", "platform-windows-ci"] }
+  ],
+
+  "buildPresets": [
+
+    { "name": "build-dev-unix-static-debug",   "configurePreset": "dev-unix-static-debug",   "jobs": 0 },
+    { "name": "build-dev-unix-static-release", "configurePreset": "dev-unix-static-release", "jobs": 0 },
+    { "name": "build-dev-unix-shared-debug",   "configurePreset": "dev-unix-shared-debug",   "jobs": 0 },
+    { "name": "build-dev-unix-shared-release", "configurePreset": "dev-unix-shared-release", "jobs": 0 },
+
+    { "name": "build-client-unix-static-debug",   "configurePreset": "client-unix-static-debug",   "jobs": 0 },
+    { "name": "build-client-unix-static-release", "configurePreset": "client-unix-static-release", "jobs": 0 },
+    { "name": "build-client-unix-shared-debug",   "configurePreset": "client-unix-shared-debug",   "jobs": 0 },
+    { "name": "build-client-unix-shared-release", "configurePreset": "client-unix-shared-release", "jobs": 0 },
+
+    { "name": "build-ci-strict-unix-static-debug",   "configurePreset": "ci-strict-unix-static-debug",   "jobs": 0 },
+    { "name": "build-ci-strict-unix-static-release", "configurePreset": "ci-strict-unix-static-release", "jobs": 0 },
+    { "name": "build-ci-strict-unix-shared-debug",   "configurePreset": "ci-strict-unix-shared-debug",   "jobs": 0 },
+    { "name": "build-ci-strict-unix-shared-release", "configurePreset": "ci-strict-unix-shared-release", "jobs": 0 },
+
+    { "name": "build-ci-coverage-unix", "configurePreset": "ci-coverage-unix", "jobs": 0 },
+
+    { "name": "build-ci-static-unix-static-debug",   "configurePreset": "ci-static-unix-static-debug",   "jobs": 0 },
+    { "name": "build-ci-static-unix-static-release", "configurePreset": "ci-static-unix-static-release", "jobs": 0 },
+    { "name": "build-ci-static-unix-shared-debug",   "configurePreset": "ci-static-unix-shared-debug",   "jobs": 0 },
+    { "name": "build-ci-static-unix-shared-release", "configurePreset": "ci-static-unix-shared-release", "jobs": 0 },
+
+    { "name": "build-ci-abi-check-unix-shared-debug", "configurePreset": "ci-abi-check-unix-shared-debug", "jobs": 0, "targets": ["generate_abi_compliance_report"] },
+
+    { "name": "build-ci-codeql-unix-debug", "configurePreset": "ci-codeql-unix-debug", "jobs": 0 },
+
+    { "name": "build-ci-doxygen-unix", "configurePreset": "ci-doxygen-unix", "jobs": 0, "targets": ["doxygen-docs"] },
+
+    { "name": "build-ci-deploy-unix-shared-release", "configurePreset": "ci-deploy-unix-shared-release", "jobs": 0, "targets": ["package"] },
+
+    { "name": "build-dev-windows-static-debug",   "configurePreset": "dev-windows-static",   "configuration": "Debug" },
+    { "name": "build-dev-windows-shared-debug",   "configurePreset": "dev-windows-shared",   "configuration": "Debug" },
+
+    { "name": "build-client-windows-static-debug",   "configurePreset": "client-windows-static",   "configuration": "Debug" },
+    { "name": "build-client-windows-shared-debug",   "configurePreset": "client-windows-shared",   "configuration": "Debug" },
+
+    { "name": "build-ci-strict-windows-static-debug",   "configurePreset": "ci-strict-windows-static-debug" },
+    { "name": "build-ci-strict-windows-shared-debug",   "configurePreset": "ci-strict-windows-shared-debug" },
+
+    { "name": "build-dev-windows-static-release",   "configurePreset": "dev-windows-static",   "configuration": "RelWithDebInfo" },
+    { "name": "build-dev-windows-shared-release",   "configurePreset": "dev-windows-shared",   "configuration": "RelWithDebInfo" },
+
+    { "name": "build-client-windows-static-release",   "configurePreset": "client-windows-static",   "configuration": "RelWithDebInfo" },
+    { "name": "build-client-windows-shared-release",   "configurePreset": "client-windows-shared",   "configuration": "RelWithDebInfo" },
+
+    { "name": "build-ci-strict-windows-static-release",   "configurePreset": "ci-strict-windows-static-release" },
+    { "name": "build-ci-strict-windows-shared-release",   "configurePreset": "ci-strict-windows-shared-release" }
+
+  ],
+
+  "testPresets": [
+    {
+      "name": "test-common",
+      "description": "Test CMake settings that apply to all configurations",
+      "hidden": true,
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "stopOnFailure": true,
+        "repeat": {
+          "mode": "until-pass",
+          "count": 3
+        }
+      },
+      "environment": {
+        "ASAN_OPTIONS": "detect_odr_violation=0:detect_stack_use_after_return=1:detect_leaks=0",
+        "LSAN_OPTIONS": "suppressions=${sourceDir}/lsan.supp",
+        "UBSAN_OPTIONS": "print_stacktrace=1"
+      }
+    },
+
+    { "name": "test-dev-unix-static-debug", "inherits": "test-common",   "configurePreset": "dev-unix-static-debug" },
+    { "name": "test-dev-unix-static-release", "inherits": "test-common", "configurePreset": "dev-unix-static-release" },
+    { "name": "test-dev-unix-shared-debug", "inherits": "test-common",   "configurePreset": "dev-unix-shared-debug" },
+    { "name": "test-dev-unix-shared-release", "inherits": "test-common", "configurePreset": "dev-unix-shared-release" },
+
+    { "name": "test-client-unix-static-debug", "inherits": "test-common",   "configurePreset": "client-unix-static-debug" },
+    { "name": "test-client-unix-static-release", "inherits": "test-common", "configurePreset": "client-unix-static-release" },
+    { "name": "test-client-unix-shared-debug", "inherits": "test-common",   "configurePreset": "client-unix-shared-debug" },
+    { "name": "test-client-unix-shared-release", "inherits": "test-common", "configurePreset": "client-unix-shared-release" },
+
+    { "name": "test-ci-strict-unix-static-debug", "inherits": "test-common",   "configurePreset": "ci-strict-unix-static-debug" },
+    { "name": "test-ci-strict-unix-static-release", "inherits": "test-common", "configurePreset": "ci-strict-unix-static-release" },
+    { "name": "test-ci-strict-unix-shared-debug", "inherits": "test-common",   "configurePreset": "ci-strict-unix-shared-debug" },
+    { "name": "test-ci-strict-unix-shared-release", "inherits": "test-common", "configurePreset": "ci-strict-unix-shared-release" },
+
+    { "name": "test-ci-coverage-unix", "inherits": "test-common", "configurePreset": "ci-coverage-unix" },
+
+    { "name": "test-ci-static-unix-static-debug", "inherits": "test-common",   "configurePreset": "ci-static-unix-static-debug" },
+    { "name": "test-ci-static-unix-static-release", "inherits": "test-common", "configurePreset": "ci-static-unix-static-release" },
+    { "name": "test-ci-static-unix-shared-debug", "inherits": "test-common",   "configurePreset": "ci-static-unix-shared-debug" },
+    { "name": "test-ci-static-unix-shared-release", "inherits": "test-common", "configurePreset": "ci-static-unix-shared-release" },
+
+    { "name": "test-dev-windows-static-debug", "inherits": "test-common",   "configurePreset": "dev-windows-static",   "configuration": "Debug" },
+    { "name": "test-dev-windows-shared-debug", "inherits": "test-common",   "configurePreset": "dev-windows-shared",   "configuration": "Debug" },
+
+    { "name": "test-client-windows-static-debug", "inherits": "test-common",   "configurePreset": "client-windows-static",   "configuration": "Debug" },
+    { "name": "test-client-windows-shared-debug", "inherits": "test-common",   "configurePreset": "client-windows-shared",   "configuration": "Debug" },
+
+    { "name": "test-ci-strict-windows-static-debug", "inherits": "test-common",   "configurePreset": "ci-strict-windows-static-debug" },
+    { "name": "test-ci-strict-windows-shared-debug", "inherits": "test-common",   "configurePreset": "ci-strict-windows-shared-debug" },
+
+    { "name": "test-dev-windows-static-release", "inherits": "test-common",   "configurePreset": "dev-windows-static",   "configuration": "RelWithDebInfo" },
+    { "name": "test-dev-windows-shared-release", "inherits": "test-common",   "configurePreset": "dev-windows-shared",   "configuration": "RelWithDebInfo" },
+
+    { "name": "test-client-windows-static-release", "inherits": "test-common",   "configurePreset": "client-windows-static",   "configuration": "RelWithDebInfo" },
+    { "name": "test-client-windows-shared-release", "inherits": "test-common",   "configurePreset": "client-windows-shared",   "configuration": "RelWithDebInfo" },
+
+    { "name": "test-ci-strict-windows-static-release", "inherits": "test-common",   "configurePreset": "ci-strict-windows-static-release" },
+    { "name": "test-ci-strict-windows-shared-release", "inherits": "test-common",   "configurePreset": "ci-strict-windows-shared-release" }
+
+  ],
+
+  "workflowPresets": [
+
+    {
+      "name": "workflow-dev-unix-static-debug",
+      "steps": [
+        { "type": "configure", "name": "dev-unix-static-debug" },
+        { "type": "build", "name": "build-dev-unix-static-debug" },
+        { "type": "test", "name": "test-dev-unix-static-debug" }
+      ]
+    },
+
+    {
+      "name": "workflow-dev-unix-static-release",
+      "steps": [
+        { "type": "configure", "name": "dev-unix-static-release" },
+        { "type": "build", "name": "build-dev-unix-static-release" },
+        { "type": "test", "name": "test-dev-unix-static-release" }
+      ]
+    },
+
+    {
+      "name": "workflow-dev-unix-shared-debug",
+      "steps": [
+        { "type": "configure", "name": "dev-unix-shared-debug" },
+        { "type": "build", "name": "build-dev-unix-shared-debug" },
+        { "type": "test", "name": "test-dev-unix-shared-debug" }
+      ]
+    },
+
+    {
+      "name": "workflow-dev-unix-shared-release",
+      "steps": [
+        { "type": "configure", "name": "dev-unix-shared-release" },
+        { "type": "build", "name": "build-dev-unix-shared-release" },
+        { "type": "test", "name": "test-dev-unix-shared-release" }
+      ]
+    },
+
+    {
+      "name": "workflow-client-unix-static-debug",
+      "steps": [
+        { "type": "configure", "name": "client-unix-static-debug" },
+        { "type": "build", "name": "build-client-unix-static-debug" },
+        { "type": "test", "name": "test-client-unix-static-debug" }
+      ]
+    },
+
+    {
+      "name": "workflow-client-unix-static-release",
+      "steps": [
+        { "type": "configure", "name": "client-unix-static-release" },
+        { "type": "build", "name": "build-client-unix-static-release" },
+        { "type": "test", "name": "test-client-unix-static-release" }
+      ]
+    },
+
+    {
+      "name": "workflow-client-unix-shared-debug",
+      "steps": [
+        { "type": "configure", "name": "client-unix-shared-debug" },
+        { "type": "build", "name": "build-client-unix-shared-debug" },
+        { "type": "test", "name": "test-client-unix-shared-debug" }
+      ]
+    },
+
+    {
+      "name": "workflow-client-unix-shared-release",
+      "steps": [
+        { "type": "configure", "name": "client-unix-shared-release" },
+        { "type": "build", "name": "build-client-unix-shared-release" },
+        { "type": "test", "name": "test-client-unix-shared-release" }
+        ]
+    },
+
+    {
+      "name": "workflow-ci-static-unix-static-debug",
+      "steps": [
+        { "type": "configure", "name": "ci-static-unix-static-debug" },
+        { "type": "build", "name": "build-ci-static-unix-static-debug" },
+        { "type": "test", "name": "test-ci-static-unix-static-debug" }
+      ]
+    },
+
+    {
+      "name": "workflow-ci-static-unix-static-release",
+      "steps": [
+        { "type": "configure", "name": "ci-static-unix-static-release" },
+        { "type": "build", "name": "build-ci-static-unix-static-release" },
+        { "type": "test", "name": "test-ci-static-unix-static-release" }
+      ]
+    },
+
+    {
+      "name": "workflow-ci-static-unix-shared-debug",
+      "steps": [
+        { "type": "configure", "name": "ci-static-unix-shared-debug" },
+        { "type": "build", "name": "build-ci-static-unix-shared-debug" },
+        { "type": "test", "name": "test-ci-static-unix-shared-debug" }
+      ]
+    },
+
+    {
+      "name": "workflow-ci-static-unix-shared-release",
+      "steps": [
+        { "type": "configure", "name": "ci-static-unix-shared-release" },
+        { "type": "build", "name": "build-ci-static-unix-shared-release" },
+        { "type": "test", "name": "test-ci-static-unix-shared-release" }
+      ]
+    },
+    {
+      "name": "workflow-ci-strict-unix-static-debug",
+      "steps": [
+        { "type": "configure", "name": "ci-strict-unix-static-debug" },
+        { "type": "build", "name": "build-ci-strict-unix-static-debug" },
+        { "type": "test", "name": "test-ci-strict-unix-static-debug" }
+      ]
+    },
+
+    {
+      "name": "workflow-ci-strict-unix-static-release",
+      "steps": [
+        { "type": "configure", "name": "ci-strict-unix-static-release" },
+        { "type": "build", "name": "build-ci-strict-unix-static-release" },
+        { "type": "test", "name": "test-ci-strict-unix-static-release" }
+      ]
+    },
+
+    {
+      "name": "workflow-ci-strict-unix-shared-debug",
+      "steps": [
+        { "type": "configure", "name": "ci-strict-unix-shared-debug" },
+        { "type": "build", "name": "build-ci-strict-unix-shared-debug" },
+        { "type": "test", "name": "test-ci-strict-unix-shared-debug" }
+      ]
+    },
+
+    {
+      "name": "workflow-ci-strict-unix-shared-release",
+      "steps": [
+        { "type": "configure", "name": "ci-strict-unix-shared-release" },
+        { "type": "build", "name": "build-ci-strict-unix-shared-release" },
+        { "type": "test", "name": "test-ci-strict-unix-shared-release" }
+      ]
+    },
+
+    {
+      "name": "workflow-ci-strict-windows-static-debug",
+      "steps": [
+        { "type": "configure", "name": "ci-strict-windows-static-debug" },
+        { "type": "build", "name": "build-ci-strict-windows-static-debug" },
+        { "type": "test", "name": "test-ci-strict-windows-static-debug" }
+      ]
+    },
+
+    {
+      "name": "workflow-ci-strict-windows-static-release",
+      "steps": [
+        { "type": "configure", "name": "ci-strict-windows-static-release" },
+        { "type": "build", "name": "build-ci-strict-windows-static-release" },
+        { "type": "test", "name": "test-ci-strict-windows-static-release" }
+      ]
+    },
+
+    {
+      "name": "workflow-ci-strict-windows-shared-debug",
+      "steps": [
+        { "type": "configure", "name": "ci-strict-windows-shared-debug" },
+        { "type": "build", "name": "build-ci-strict-windows-shared-debug" },
+        { "type": "test", "name": "test-ci-strict-windows-shared-debug" }
+      ]
+    },
+
+    {
+      "name": "workflow-ci-strict-windows-shared-release",
+      "steps": [
+        { "type": "configure", "name": "ci-strict-windows-shared-release" },
+        { "type": "build", "name": "build-ci-strict-windows-shared-release" },
+        { "type": "test", "name": "test-ci-strict-windows-shared-release" }
+      ]
+    },
+
+    {
+      "name": "workflow-ci-coverage-unix",
+      "steps": [
+        { "type": "configure", "name": "ci-coverage-unix" },
+        { "type": "build", "name": "build-ci-coverage-unix" },
+        { "type": "test", "name": "test-ci-coverage-unix" }
+      ]
+    },
+
+    {
+      "name": "workflow-ci-abi-check-unix-shared-debug",
+      "steps": [
+        { "type": "configure", "name": "ci-abi-check-unix-shared-debug" },
+        { "type": "build", "name": "build-ci-abi-check-unix-shared-debug" }
+      ]
+    },
+
+    {
+      "name": "workflow-ci-codeql-unix-debug",
+      "steps": [
+        { "type": "configure", "name": "ci-codeql-unix-debug" },
+        { "type": "build", "name": "build-ci-codeql-unix-debug" }
+      ]
+    },
+
+    {
+      "name": "workflow-ci-doxygen-unix",
+      "steps": [
+        { "type": "configure", "name": "ci-doxygen-unix" },
+        { "type": "build", "name": "build-ci-doxygen-unix" }
+      ]
+    },
+
+    {
+      "name": "workflow-ci-license-check-unix",
+      "steps": [
+        { "type": "configure", "name": "ci-license-check-unix" }
+      ]
+    },
+
+    {
+      "name": "workflow-ci-deploy-unix-shared-release",
+      "steps": [
+        { "type": "configure", "name": "ci-deploy-unix-shared-release" },
+        { "type": "build", "name": "build-ci-deploy-unix-shared-release" }
+      ]
+    }
+
+  ]
+}

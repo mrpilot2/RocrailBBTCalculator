@@ -5,3 +5,5 @@ PROJECT(rocrailBBTCalculator
   )
 
 ADD_SUBDIRECTORY(src)
+
+ENABLE_TESTING()
