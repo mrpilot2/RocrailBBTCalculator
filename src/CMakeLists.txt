@@ -39,13 +39,6 @@ qt_generate_deploy_app_script(
 
 install(SCRIPT "${deployApp}")
 
-INSTALL(
-  FILES
-    $<TARGET_FILE_DIR:rocrailBBTCalculator>/translations/qt_de.qm
-    $<TARGET_FILE_DIR:rocrailBBTCalculator>/translations/qt_en.qm
-  DESTINATION ${CMAKE_INSTALL_BINDIR}/translations
-)
-
 SET(CPACK_PACKAGE_NAME "rocrailBBTCalculator")
 SET(CPACK_PACKAGE_INSTALL_DIRECTORY "rocrailBBTCalculator")
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Calculates BBT values for RocRail Locomotives")
