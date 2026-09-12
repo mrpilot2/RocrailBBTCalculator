@@ -1,7 +1,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.12)
 PROJECT(rocrailBBTCalculator
   LANGUAGES CXX
-  VERSION 0.3.0
+  VERSION 0.3.1 # x-release-please-version
   )
 
 ADD_SUBDIRECTORY(src)
