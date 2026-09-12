@@ -1,0 +1,6 @@
+name: "Aide CodeQL config"
+paths:
+  - aide
+query-filters:
+  - exclude:
+      id: cpp/unused-static-function

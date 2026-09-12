@@ -1,0 +1,13 @@
+name: CI - Weekly
+
+on:
+  schedule:
+    - cron: "37 19 * * 3"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  ci_build_and_test:
+    uses: ./.github/workflows/build_and_test.yml

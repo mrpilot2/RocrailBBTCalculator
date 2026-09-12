@@ -1,0 +1,39 @@
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: write
+  pull-requests: write
+
+name: release-please
+env:
+  ACTION_NAME: release-rocrailBBT
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          token: ${{ secrets.RELEASE_TOKEN }}
+          release-type: simple
+          #          package-name: ${{env.ACTION_NAME}}
+      - id: label
+        if: ${{ steps.release.outputs.pr }}
+        uses: actions/github-script@v8
+        env:
+          RELEASE_PR: ${{ steps.release.outputs.pr }}
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
+            const pr = JSON.parse(process.env.RELEASE_PR);
+            await github.rest.issues.addLabels({
+              owner,
+              repo,
+              issue_number: pr.number,
+              labels: ['autorelease: pending']
+            });
+            console.log(`Tagged ${pr.number}`)

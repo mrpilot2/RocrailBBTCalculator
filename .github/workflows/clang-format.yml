@@ -1,0 +1,33 @@
+name: Run clang-format Linter
+
+on:
+  workflow_call:
+    outputs:
+      pushed:
+        value: ${{ jobs.clang-format.outputs.pushed }}
+
+jobs:
+  clang-format:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+          token: ${{ secrets.CLANG_FORMAT_TOKEN }}
+      - uses: DoozyX/clang-format-lint-action@v0.20
+        with:
+          source: '.'
+          extensions: 'hpp,cpp'
+          clangFormatVersion: 20
+          inplace: True
+      - uses: EndBug/add-and-commit@v10
+        id: commit
+        with:
+          add: '**/*.hpp **/*.cpp'
+          author_name: Clang-format Robot
+          author_email: bot@github.com
+          message: 'style: automatic clang-format changes'
+    outputs:
+      pushed: ${{ steps.commit.outputs.pushed }}

@@ -1,0 +1,108 @@
+name: CI - Build and Test
+
+on:
+  workflow_call:
+
+jobs:
+  build:
+    name: ${{ matrix.os }}, ${{ matrix.cmake_name }}, ${{ matrix.qt_name }}
+    permissions:
+      id-token: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2022, macos-latest, ubuntu-24.04, ubuntu-26.04]
+        cmake: [3.26, 4.x]
+        qt: [5.*]
+
+        include:
+          - cmake: 3.26
+            cmake_name: CMake 3.26
+          - cmake: 4.x
+            cmake_name: CMake Latest
+
+          - qt: 5.*
+            qt_name: Qt5
+
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - id: setup_deps
+        uses: ./.github/actions/setup_deps
+        with:
+          cmake_version: ${{matrix.cmake}}
+          qt_version: ${{ matrix.qt }}
+
+      - name: Select preset
+        id: preset
+        run: |
+          if [[ "${{ runner.os }}" == "Linux" || "${{ runner.os }}" == "macOS" ]]; then
+            echo "PRESET=workflow-ci-strict-unix" >> $GITHUB_OUTPUT
+          else
+            echo "PRESET=workflow-ci-strict-windows" >> $GITHUB_OUTPUT
+          fi
+
+      # Static Debug
+      - name: "Static Debug: Workflow"
+        run: cmake --workflow --preset ${{ steps.preset.outputs.PRESET }}-static-debug
+        env:
+          QT_QPA_PLATFORM: offscreen
+
+      # Shared Debug
+      - name: "Shared Debug: Workflow"
+        run: cmake --workflow --preset ${{ steps.preset.outputs.PRESET }}-shared-debug
+        env:
+          QT_QPA_PLATFORM: offscreen
+
+      # Static Release
+      - name: "Static Release: Workflow"
+        run: cmake --workflow --preset ${{ steps.preset.outputs.PRESET }}-static-release
+        env:
+          QT_QPA_PLATFORM: offscreen
+
+      # Shared Release
+      - name: "Shared Release: Workflow"
+        run: cmake --workflow --preset ${{ steps.preset.outputs.PRESET }}-shared-release
+        env:
+          QT_QPA_PLATFORM: offscreen
+
+      - name: Upload Unit Test Results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test_results_${{ matrix.os }}_cmake-${{ matrix.cmake }}_qt-${{ matrix.qt }}
+          path: build*/**/*.xml
+
+  publish-test-results:
+    name: "Publish Unit Test Results from ${{ matrix. os }}"
+    needs: build
+    if: always()
+
+    strategy:
+      matrix:
+        os: [ubuntu-24.04]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v8
+        with:
+          path: artifacts
+
+      - name: Publish Unit Test Results ${{ matrix.os }}
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          check_name: Unit Test Results ${{ matrix.os }}
+          comment_mode: always
+          files: artifacts/test_results_${{ matrix.os}}*/**/tests/ut/*.xml
+          report_individual_runs: true
+          deduplicate_classes_by_file_name: false
+
