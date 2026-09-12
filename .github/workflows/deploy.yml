@@ -1,0 +1,41 @@
+name: CD - Deploy to Github Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: Build project
+    runs-on: windows-2022
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - id: setup_deps
+        uses: ./.github/actions/setup_deps
+
+      # Shared Release with packaging
+      - name: "Shared Release: Configure and build with preset"
+        run: cmake --workflow --preset workflow-ci-deploy-unix-shared-release
+        env:
+          QT_QPA_PLATFORM: offscreen
+
+      - name: Get release
+        id: get_release
+        uses: bruceadams/get-release@v1.3.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: csexton/release-asset-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          pattern: "./build/ci-deploy-unix-shared-release/aide*.tar.gz"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          release-url: ${{ steps.get_release.outputs.upload_url }}
