@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include <QtCore/QAbstractTableModel>
 #include <QIcon>
+#include <QtCore/QAbstractTableModel>
 
 #include "core/datastructs.hpp"
 

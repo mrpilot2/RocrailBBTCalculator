@@ -12,15 +12,17 @@ namespace BBTCalculator
         class Calculation
         {
         public:
-            Calculation(Loc* l, const RouteList& rList, const BlockList& bList, bool shallOverwriteExistingValues);
+            Calculation(Loc* l, const RouteList& rList, const BlockList& bList,
+                        bool shallOverwriteExistingValues);
 
             void calculateNewBBTEntries(double correctionFactor);
 
         private:
+            BBT& doIntervalComputation(double correctionFactor,
+                                       const Route& route, BBT& bbt) const;
 
-            BBT& doIntervalComputation(double correctionFactor, const Route& route, BBT& bbt) const;
-
-            void createNewBBTEntry(double correctionFactor, const Route& route) const;
+            void createNewBBTEntry(double correctionFactor,
+                                   const Route& route) const;
 
             Loc* loc;
 

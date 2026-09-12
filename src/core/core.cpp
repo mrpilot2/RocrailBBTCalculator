@@ -4,11 +4,10 @@
 
 #include <QtWidgets/QtWidgets>
 
+#include "calculation.hpp"
 #include "gui/imagesortfilterproxymodel.hpp"
 #include "gui/mainwindow.hpp"
 #include "gui/mainwindowcontroller.hpp"
-
-#include "calculation.hpp"
 #include "planparser.hpp"
 
 using BBTCalculator::Core::Core;
@@ -17,8 +16,7 @@ using BBTCalculator::Gui::MainWindowController;
 
 Core::Core::Core()
     : mainWindow{new MainWindow()}
-{
-}
+{}
 
 void Core::initializeApplication(MainWindowController& contr)
 {
@@ -32,8 +30,7 @@ void Core::initializeApplication(MainWindowController& contr)
 void Core::setupTranslator()
 {
     if (translator.load(QLocale(), QLatin1String("rocrailBBT"),
-                        QLatin1String("_"), QLatin1String(":/translations")))
-    {
+                        QLatin1String("_"), QLatin1String(":/translations"))) {
         QApplication::installTranslator(&translator);
         mainWindow->retranslateUi();
     }
@@ -62,11 +59,9 @@ void BBTCalculator::Core::Core::letUserSelectWorkspace()
 
 void Core::loadWorkspace(const QString& userSelectedDirectory)
 {
-    if (!userSelectedDirectory.isEmpty())
-    {
+    if (!userSelectedDirectory.isEmpty()) {
         const QDir dir{userSelectedDirectory};
-        if (dir.exists())
-        {
+        if (dir.exists()) {
             workspace.setRootPath(dir);
             mainWindow->showRootPath(dir.absolutePath());
             PlanParser parser(workspace.getPlanFilePath());
@@ -96,9 +91,7 @@ void Core::loadWorkspace(const QString& userSelectedDirectory)
             mainWindow->setLocTableModel(locSortFilterModel.get());
             mainWindow->setBlockTableModel(blockSortFilterModel.get());
             mainWindow->setRouteTableModel(routeSortFilterModel.get());
-        }
-        else
-        {
+        } else {
             mainWindow->notifyUserSelectedDirectoryDoesNotExist();
         }
     }
@@ -114,22 +107,20 @@ void Core::displayImageForLocName(const QString& locName)
 
     auto it = std::find_if(locList.begin(), locList.end(), search);
 
-    if (it != locList.end())
-    {
-       mainWindow->displayLocImage(it->locImage);
-    }
+    if (it != locList.end()) { mainWindow->displayLocImage(it->locImage); }
 }
 
 void Core::createBBTModel(const QString& locName)
 {
     const LocList& locList = workspace.getLocList();
 
-    const auto search = [locName](Loc item) { return item.name == locName; };
+    const auto search = [locName](Loc item) {
+        return item.name == locName;
+    };
 
     auto it = std::find_if(locList.begin(), locList.end(), search);
 
-    if (it != locList.end())
-    {
+    if (it != locList.end()) {
         bbtModel = std::make_unique<Gui::BBTModel>(it->bbt);
 
         bbtSortFilterModel = std::make_unique<Gui::ImageSortFilterProxyModel>();
@@ -164,8 +155,7 @@ void Core::removeBlockAndRouteMainlineFilter()
 void Core::filterBlockAndRouteByMainline(QSortFilterProxyModel* model,
                                          int column)
 {
-    if (model != nullptr)
-    {
+    if (model != nullptr) {
         model->setFilterKeyColumn(column);
         model->setFilterRegularExpression("true");
     }
@@ -175,23 +165,19 @@ void Core::calculateBBT(const QString& locName)
 {
     LocList& locList = workspace.getLocList();
 
-    const auto search = [locName](Loc item) { return item.name == locName; };
+    const auto search = [locName](Loc item) {
+        return item.name == locName;
+    };
 
     auto it = std::find_if(locList.begin(), locList.end(), search);
 
-    if (it != locList.end())
-    {
+    if (it != locList.end()) {
         bool shallOverwriteExistingValues{false};
-        if (!it->bbt.empty())
-        {
+        if (!it->bbt.empty()) {
             int returnCode =
                 mainWindow->askUserIfExistingBBTEntriesShallBeDeleted();
-            if (returnCode == QMessageBox::Cancel)
-            {
-                return;
-            }
-            if (returnCode == QMessageBox::Yes)
-            {
+            if (returnCode == QMessageBox::Cancel) { return; }
+            if (returnCode == QMessageBox::Yes) {
                 shallOverwriteExistingValues = true;
             }
         }
