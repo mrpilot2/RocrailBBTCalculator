@@ -17,7 +17,7 @@ using BBTCalculator::Gui::MainWindowController;
 int main(int argc, char* argv[])
 {
     aide::Application::setOrganizationName("mrpilot");
-    aide::Application::setOrganizationDomain("https://github.com/mrpilot2");
+    aide::Application::setOrganizationDomain("http://github.com/mrpilot2");
     aide::Application::setApplicationName("rocrailBBTCalculator");
     aide::Application::setApplicationDisplayName("Rocrail BBT Calculator");
 
