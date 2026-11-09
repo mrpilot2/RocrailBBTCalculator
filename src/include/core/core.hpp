@@ -6,6 +6,8 @@
 #include <QtCore/QPointer>
 #include <QtCore/QSortFilterProxyModel>
 
+#include <aide/settingsinterface.hpp>
+
 #include "gui/bbtmodel.hpp"
 #include "gui/blockmodel.hpp"
 #include "gui/locmodel.hpp"
@@ -29,7 +31,13 @@ namespace BBTCalculator
         class Core
         {
         public:
-            Core();
+            /// @param versionableSettings   store for data worth committing
+            ///        to version control (per-loco correction factors)
+            /// @param unversionableSettings machine-local store (workspace
+            ///        directory)
+            Core(std::shared_ptr<aide::SettingsInterface> versionableSettings,
+                 std::shared_ptr<aide::SettingsInterface>
+                     unversionableSettings);
 
             ~Core();
 
@@ -41,6 +49,9 @@ namespace BBTCalculator
             void initializeApplication(Gui::MainWindowController& contr);
 
             void letUserSelectWorkspace();
+
+            /// Loads the workspace and remembers the directory.
+            void openWorkspace(const QString& directory);
 
             void displayImageForLocName(const QString& locName);
 
@@ -65,6 +76,9 @@ namespace BBTCalculator
             // Owned by the aIDE main window once embedded as central widget;
             // deleted in ~Core only while still unparented.
             QPointer<Gui::MainWindow> mainWindow;
+
+            std::shared_ptr<aide::SettingsInterface> versionableSettings;
+            std::shared_ptr<aide::SettingsInterface> unversionableSettings;
 
             Workspace workspace;
             std::unique_ptr<Gui::LocModel> locModel;

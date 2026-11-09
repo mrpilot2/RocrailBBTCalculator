@@ -1,6 +1,9 @@
 #include "core.hpp"
 
 #include <memory>
+#include <utility>
+
+#include <aide/hierarchicalid.hpp>
 
 #include <QtWidgets/QtWidgets>
 
@@ -14,8 +17,18 @@ using BBTCalculator::Core::Core;
 using BBTCalculator::Gui::MainWindow;
 using BBTCalculator::Gui::MainWindowController;
 
-Core::Core::Core()
+namespace
+{
+    const auto workspaceDirectoryKey()
+    { return aide::HierarchicalId("Workspace")("Directory"); }
+} // namespace
+
+Core::Core::Core(
+    std::shared_ptr<aide::SettingsInterface> versionableSettings,
+    std::shared_ptr<aide::SettingsInterface> unversionableSettings)
     : mainWindow{new MainWindow()}
+    , versionableSettings{std::move(versionableSettings)}
+    , unversionableSettings{std::move(unversionableSettings)}
 {}
 
 Core::~Core()
@@ -40,10 +53,8 @@ void Core::initializeApplication(MainWindowController& contr)
 
 void BBTCalculator::Core::Core::loadLastOpenWorkspace()
 {
-    QSettings settings;
-
-    QString workspaceDirectory =
-        settings.value("workspaceDirectory", "").toString();
+    const QString workspaceDirectory =
+        unversionableSettings->value(workspaceDirectoryKey(), "").toString();
 
     loadWorkspace(workspaceDirectory);
 }
@@ -53,10 +64,14 @@ void BBTCalculator::Core::Core::letUserSelectWorkspace()
     QString userSelectedDirectory =
         mainWindow->letUserSelectWorkspaceDirectory();
 
-    loadWorkspace(userSelectedDirectory);
+    openWorkspace(userSelectedDirectory);
+}
 
-    QSettings settings;
-    settings.setValue("workspaceDirectory", userSelectedDirectory);
+void Core::openWorkspace(const QString& directory)
+{
+    loadWorkspace(directory);
+
+    unversionableSettings->setValue(workspaceDirectoryKey(), directory);
 }
 
 void Core::loadWorkspace(const QString& userSelectedDirectory)
@@ -132,9 +147,12 @@ void Core::createBBTModel(const QString& locName)
 
         mainWindow->setLocNameInBBTBox(it->name);
 
-        QSettings settings;
+        const QByteArray locNameUtf8{it->name.toUtf8()};
         mainWindow->setCorrectionFactor(
-            settings.value(QString("locomotive/") + it->name, 1.0).toDouble());
+            versionableSettings
+                ->value(aide::HierarchicalId("Locomotive")(locNameUtf8.constData()),
+                        1.0)
+                .toDouble());
     }
 }
 
@@ -188,9 +206,10 @@ void Core::calculateBBT(const QString& locName)
         calc.calculateNewBBTEntries(
             mainWindow->getUserSelectedCorrectionFactor());
 
-        QSettings settings;
-        settings.setValue(QString("locomotive/") + it->name,
-                          mainWindow->getUserSelectedCorrectionFactor());
+        const QByteArray locNameUtf8{it->name.toUtf8()};
+        versionableSettings->setValue(
+            aide::HierarchicalId("Locomotive")(locNameUtf8.constData()),
+            mainWindow->getUserSelectedCorrectionFactor());
 
         createBBTModel(locName);
 

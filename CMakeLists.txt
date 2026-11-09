@@ -12,3 +12,4 @@ INCLUDE(dependencies/aide.cmake)
 ADD_SUBDIRECTORY(src)
 
 ENABLE_TESTING()
+ADD_SUBDIRECTORY(tests)
