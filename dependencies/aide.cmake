@@ -1,3 +1,9 @@
+# aIDE's own top-level settings (which export all symbols for Windows DLLs)
+# are not applied when only the library subdirectory is consumed.
+if(WIN32)
+  set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+endif()
+
 if(NOT TARGET Aide::AideApplication)
   find_package(AideQt${QT_VERSION_MAJOR} CONFIG QUIET)
 endif()
