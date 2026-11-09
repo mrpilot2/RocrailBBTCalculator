@@ -49,9 +49,7 @@ MainWindow::MainWindow(QWidget* parent)
 }
 
 MainWindow::~MainWindow()
-{
-    delete ui;
-}
+{ delete ui; }
 
 void MainWindow::setController(MainWindowController* contr)
 {
@@ -88,9 +86,7 @@ void MainWindow::setupTable(QTableView* table) const
 }
 
 void MainWindow::retranslateUi()
-{
-    ui->retranslateUi(this);
-}
+{ ui->retranslateUi(this); }
 
 void MainWindow::saveState()
 {
@@ -149,7 +145,8 @@ void MainWindow::notifyUserSelectedDirectoryDoesNotExist()
 
 void MainWindow::showRootPath(const QString& path)
 {
-    window()->setWindowTitle(path);
+    window()->setWindowTitle(QApplication::applicationDisplayName() + " - " +
+                             path);
 }
 
 void MainWindow::setLocTableModel(QAbstractItemModel* model)
@@ -247,14 +244,10 @@ void MainWindow::setLocNameInBBTBox(const QString& locName)
 }
 
 void MainWindow::setCorrectionFactor(double correctionFactor)
-{
-    ui->correctionFactor->setValue(correctionFactor);
-}
+{ ui->correctionFactor->setValue(correctionFactor); }
 
 auto MainWindow::getUserSelectedCorrectionFactor() const -> double
-{
-    return ui->correctionFactor->value();
-}
+{ return ui->correctionFactor->value(); }
 
 auto MainWindow::askUserIfExistingBBTEntriesShallBeDeleted() -> int
 {

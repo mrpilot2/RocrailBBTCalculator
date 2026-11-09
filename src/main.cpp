@@ -31,8 +31,6 @@ int main(int argc, char* argv[])
     MainWindowController controller{};
     controller.setCore(&core);
 
-    core.initializeApplication(controller);
-
     const auto mainWindow = application.mainWindow();
     mainWindow->setCentralWidget(core.centralWidget());
 
@@ -50,7 +48,7 @@ int main(int argc, char* argv[])
 
         menu->insertAction(
             actionRegistry->action(aide::constants::CONSTANTS().FILE_SETTINGS)
-                .value(),
+                .value_or(nullptr),
             actionOpenWorkspace);
         actionRegistry->registerAction(
             actionOpenWorkspace,
@@ -59,6 +57,8 @@ int main(int argc, char* argv[])
     }
 
     mainWindow->show();
+
+    core.initializeApplication(controller);
 
     return aide::Application::exec();
 }

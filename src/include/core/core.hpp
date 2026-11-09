@@ -3,6 +3,7 @@
 
 #include <memory>
 
+#include <QtCore/QPointer>
 #include <QtCore/QSortFilterProxyModel>
 #include <QtCore/QTranslator>
 
@@ -30,6 +31,11 @@ namespace BBTCalculator
         {
         public:
             Core();
+
+            ~Core();
+
+            Core(const Core&)            = delete;
+            Core& operator=(const Core&) = delete;
 
             auto centralWidget() const -> QWidget*;
 
@@ -59,7 +65,9 @@ namespace BBTCalculator
 
             void loadWorkspace(const QString& userSelectedDirectory);
 
-            std::shared_ptr<Gui::MainWindow> mainWindow;
+            // Owned by the aIDE main window once embedded as central widget;
+            // deleted in ~Core only while still unparented.
+            QPointer<Gui::MainWindow> mainWindow;
 
             QTranslator translator;
             Workspace workspace;

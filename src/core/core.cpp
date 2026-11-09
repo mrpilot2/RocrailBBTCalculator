@@ -18,18 +18,23 @@ Core::Core::Core()
     : mainWindow{new MainWindow()}
 {}
 
-auto Core::centralWidget() const -> QWidget*
+Core::~Core()
 {
-    return mainWindow.get();
+    if (mainWindow && mainWindow->parent() == nullptr) { delete mainWindow; }
 }
+
+auto Core::centralWidget() const -> QWidget*
+{ return mainWindow; }
 
 void Core::initializeApplication(MainWindowController& contr)
 {
     mainWindow->setController(&contr);
     setupTranslator();
 
-    QObject::connect(qApp, &QApplication::aboutToQuit, mainWindow.get(),
-                     [this]() { mainWindow->saveState(); });
+    QObject::connect(qApp, &QApplication::aboutToQuit, mainWindow,
+                     [window = mainWindow]() {
+                         if (window) { window->saveState(); }
+                     });
 
     loadLastOpenWorkspace();
 }
@@ -144,14 +149,10 @@ void Core::createBBTModel(const QString& locName)
 }
 
 void Core::filterBlockByMainline(int column)
-{
-    filterBlockAndRouteByMainline(blockSortFilterModel.get(), column);
-}
+{ filterBlockAndRouteByMainline(blockSortFilterModel.get(), column); }
 
 void Core::filterRouteByMainline(int column)
-{
-    filterBlockAndRouteByMainline(routeSortFilterModel.get(), column);
-}
+{ filterBlockAndRouteByMainline(routeSortFilterModel.get(), column); }
 
 void Core::removeBlockAndRouteMainlineFilter()
 {
