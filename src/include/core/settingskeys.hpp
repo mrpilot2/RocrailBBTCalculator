@@ -8,7 +8,9 @@
 namespace BBTCalculator::Core::SettingsKeys
 {
     inline aide::HierarchicalId workspaceDirectory()
-    { return aide::HierarchicalId("Workspace")("Directory"); }
+    {
+        return aide::HierarchicalId("Workspace")("Directory");
+    }
 
     /// Calls @p f with the correction-factor key of the given locomotive.
     /// HierarchicalId keeps raw pointers, so the UTF-8 name buffer has to

@@ -86,10 +86,14 @@ namespace
     };
 
     std::string name(const char* a, const char* b)
-    { return aide::HierarchicalId(a)(b).name(); }
+    {
+        return aide::HierarchicalId(a)(b).name();
+    }
 
     std::string name(const char* a, const char* b, const char* c)
-    { return aide::HierarchicalId(a)(b)(c).name(); }
+    {
+        return aide::HierarchicalId(a)(b)(c).name();
+    }
 } // namespace
 
 TEST_CASE("Populated legacy settings are migrated to the right stores")

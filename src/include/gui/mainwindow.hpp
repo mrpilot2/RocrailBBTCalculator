@@ -3,12 +3,12 @@
 
 #include <memory>
 
-#include <aide/settingsinterface.hpp>
-
 #include <QtCore/QAbstractTableModel>
 #include <QtWidgets/QSplitter>
 #include <QtWidgets/QTableView>
 #include <QtWidgets/QWidget>
+
+#include <aide/settingsinterface.hpp>
 
 #include "mainwindowcontroller.hpp"
 

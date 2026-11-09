@@ -32,7 +32,9 @@ Core::~Core()
 }
 
 auto Core::centralWidget() const -> QWidget*
-{ return mainWindow; }
+{
+    return mainWindow;
+}
 
 void Core::initializeApplication(MainWindowController& contr)
 {
@@ -152,10 +154,14 @@ void Core::createBBTModel(const QString& locName)
 }
 
 void Core::filterBlockByMainline(int column)
-{ filterBlockAndRouteByMainline(blockSortFilterModel.get(), column); }
+{
+    filterBlockAndRouteByMainline(blockSortFilterModel.get(), column);
+}
 
 void Core::filterRouteByMainline(int column)
-{ filterBlockAndRouteByMainline(routeSortFilterModel.get(), column); }
+{
+    filterBlockAndRouteByMainline(routeSortFilterModel.get(), column);
+}
 
 void Core::removeBlockAndRouteMainlineFilter()
 {

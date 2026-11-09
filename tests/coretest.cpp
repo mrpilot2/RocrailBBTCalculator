@@ -1,6 +1,6 @@
-#include <catch2/catch_test_macros.hpp>
-
 #include <memory>
+
+#include <catch2/catch_test_macros.hpp>
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>
@@ -24,11 +24,11 @@ namespace
     {
         Fixture()
         {
-            static int argc   = 1;
-            static char arg[] = "ut";
+            static int argc     = 1;
+            static char arg[]   = "ut";
             static char* argv[] = {arg, nullptr};
-            // Intentionally leaked: destroying QApplication during static teardown
-            // crashes.
+            // Intentionally leaked: destroying QApplication during static
+            // teardown crashes.
             static auto* app = new QApplication(argc, argv);
             (void)app;
 
@@ -40,9 +40,9 @@ namespace
 
             REQUIRE(workspaceDir.isValid());
             REQUIRE(QFile::copy(PLAN_XML, workspaceDir.filePath("plan.xml")));
-            QFile::setPermissions(workspaceDir.filePath("plan.xml"),
-                                  QFileDevice::ReadOwner |
-                                      QFileDevice::WriteOwner);
+            QFile::setPermissions(
+                workspaceDir.filePath("plan.xml"),
+                QFileDevice::ReadOwner | QFileDevice::WriteOwner);
         }
 
         static QDoubleSpinBox* spinBox(const Core& core)
@@ -104,8 +104,9 @@ TEST_CASE("Opening a workspace stores its directory in the unversionable store")
     REQUIRE(f.versionable->empty());
 }
 
-TEST_CASE("Calculating a BBT writes the correction factor to the versionable "
-          "store only")
+TEST_CASE(
+    "Calculating a BBT writes the correction factor to the versionable "
+    "store only")
 {
     Fixture f;
     f.unversionable->values["Workspace/Directory"] = f.workspaceDir.path();
@@ -122,9 +123,9 @@ TEST_CASE("Calculating a BBT writes the correction factor to the versionable "
     REQUIRE_FALSE(f.unversionable->contains("Locomotive/Loco1"));
 }
 
-
-TEST_CASE("Mainline toggle and splitter layout are stored in the "
-          "unversionable store on quit and restored on next start")
+TEST_CASE(
+    "Mainline toggle and splitter layout are stored in the "
+    "unversionable store on quit and restored on next start")
 {
     Fixture f;
     {

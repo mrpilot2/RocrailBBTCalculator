@@ -55,7 +55,9 @@ SettingsMigration::SettingsMigration(
 {}
 
 aide::HierarchicalId SettingsMigration::markerKey()
-{ return aide::HierarchicalId("Migration")("LegacySettingsMigrated"); }
+{
+    return aide::HierarchicalId("Migration")("LegacySettingsMigrated");
+}
 
 bool SettingsMigration::run()
 {

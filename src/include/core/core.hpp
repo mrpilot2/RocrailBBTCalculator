@@ -35,9 +35,9 @@ namespace BBTCalculator
             ///        to version control (per-loco correction factors)
             /// @param unversionableSettings machine-local store (workspace
             ///        directory)
-            Core(std::shared_ptr<aide::SettingsInterface> versionableSettings,
-                 std::shared_ptr<aide::SettingsInterface>
-                     unversionableSettings);
+            Core(
+                std::shared_ptr<aide::SettingsInterface> versionableSettings,
+                std::shared_ptr<aide::SettingsInterface> unversionableSettings);
 
             ~Core();
 

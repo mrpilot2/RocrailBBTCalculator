@@ -3,11 +3,11 @@
 
 #include <utility>
 
-#include <aide/hierarchicalid.hpp>
-
 #include <QResizeEvent>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMessageBox>
+
+#include <aide/hierarchicalid.hpp>
 
 #include "bbtmodel.hpp"
 #include "blockmodel.hpp"
@@ -26,10 +26,14 @@ namespace
     //   View/<Table>/HeaderGeometry       <- <x>View/geometry
     //   View/<Splitter>/State|Geometry    <- splitter[2]/state|geometry
     aide::HierarchicalId viewKey(const char* group, const char* name)
-    { return aide::HierarchicalId("View")(group)(name); }
+    {
+        return aide::HierarchicalId("View")(group)(name);
+    }
 
     aide::HierarchicalId showMainlineOnlyKey()
-    { return aide::HierarchicalId("View")("ShowMainlineOnly"); }
+    {
+        return aide::HierarchicalId("View")("ShowMainlineOnly");
+    }
 } // namespace
 
 MainWindow::MainWindow(
@@ -61,7 +65,9 @@ MainWindow::MainWindow(
 }
 
 MainWindow::~MainWindow()
-{ delete ui; }
+{
+    delete ui;
+}
 
 void MainWindow::setController(MainWindowController* contr)
 {
@@ -148,9 +154,8 @@ void MainWindow::saveState()
     saveHeader(ui->routesTable, "RoutesTable");
     saveHeader(ui->bbtTable, "BBTTable");
 
-    for (auto [splitter, group] :
-         {std::pair{ui->splitter, "Splitter1"},
-          std::pair{ui->splitter_2, "Splitter2"}}) {
+    for (auto [splitter, group] : {std::pair{ui->splitter, "Splitter1"},
+                                   std::pair{ui->splitter_2, "Splitter2"}}) {
         settings->setValue(viewKey(group, "State"), splitter->saveState());
         settings->setValue(viewKey(group, "Geometry"),
                            splitter->saveGeometry());
@@ -263,10 +268,14 @@ void MainWindow::setLocNameInBBTBox(const QString& locName)
 }
 
 void MainWindow::setCorrectionFactor(double correctionFactor)
-{ ui->correctionFactor->setValue(correctionFactor); }
+{
+    ui->correctionFactor->setValue(correctionFactor);
+}
 
 auto MainWindow::getUserSelectedCorrectionFactor() const -> double
-{ return ui->correctionFactor->value(); }
+{
+    return ui->correctionFactor->value();
+}
 
 auto MainWindow::askUserIfExistingBBTEntriesShallBeDeleted() -> int
 {
