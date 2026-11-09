@@ -1,47 +1,58 @@
 #include "core.hpp"
 
 #include <memory>
+#include <utility>
 
 #include <QtWidgets/QtWidgets>
+
+#include <aide/hierarchicalid.hpp>
 
 #include "calculation.hpp"
 #include "gui/imagesortfilterproxymodel.hpp"
 #include "gui/mainwindow.hpp"
 #include "gui/mainwindowcontroller.hpp"
 #include "planparser.hpp"
+#include "settingskeys.hpp"
 
 using BBTCalculator::Core::Core;
+namespace SettingsKeys = BBTCalculator::Core::SettingsKeys;
 using BBTCalculator::Gui::MainWindow;
 using BBTCalculator::Gui::MainWindowController;
 
-Core::Core::Core()
-    : mainWindow{new MainWindow()}
+Core::Core::Core(std::shared_ptr<aide::SettingsInterface> versionableSettings,
+                 std::shared_ptr<aide::SettingsInterface> unversionableSettings)
+    : mainWindow{new MainWindow(unversionableSettings)}
+    , versionableSettings{std::move(versionableSettings)}
+    , unversionableSettings{std::move(unversionableSettings)}
 {}
+
+Core::~Core()
+{
+    if (mainWindow && mainWindow->parent() == nullptr) { delete mainWindow; }
+}
+
+auto Core::centralWidget() const -> QWidget*
+{
+    return mainWindow;
+}
 
 void Core::initializeApplication(MainWindowController& contr)
 {
     mainWindow->setController(&contr);
-    setupTranslator();
-    mainWindow->show();
+
+    QObject::connect(qApp, &QApplication::aboutToQuit, mainWindow,
+                     [window = mainWindow]() {
+                         if (window) { window->saveState(); }
+                     });
 
     loadLastOpenWorkspace();
 }
 
-void Core::setupTranslator()
-{
-    if (translator.load(QLocale(), QLatin1String("rocrailBBT"),
-                        QLatin1String("_"), QLatin1String(":/translations"))) {
-        QApplication::installTranslator(&translator);
-        mainWindow->retranslateUi();
-    }
-}
-
 void BBTCalculator::Core::Core::loadLastOpenWorkspace()
 {
-    QSettings settings;
-
-    QString workspaceDirectory =
-        settings.value("workspaceDirectory", "").toString();
+    const QString workspaceDirectory =
+        unversionableSettings->value(SettingsKeys::workspaceDirectory(), "")
+            .toString();
 
     loadWorkspace(workspaceDirectory);
 }
@@ -51,10 +62,15 @@ void BBTCalculator::Core::Core::letUserSelectWorkspace()
     QString userSelectedDirectory =
         mainWindow->letUserSelectWorkspaceDirectory();
 
-    loadWorkspace(userSelectedDirectory);
+    openWorkspace(userSelectedDirectory);
+}
 
-    QSettings settings;
-    settings.setValue("workspaceDirectory", userSelectedDirectory);
+void Core::openWorkspace(const QString& directory)
+{
+    loadWorkspace(directory);
+
+    unversionableSettings->setValue(SettingsKeys::workspaceDirectory(),
+                                    directory);
 }
 
 void Core::loadWorkspace(const QString& userSelectedDirectory)
@@ -130,9 +146,10 @@ void Core::createBBTModel(const QString& locName)
 
         mainWindow->setLocNameInBBTBox(it->name);
 
-        QSettings settings;
-        mainWindow->setCorrectionFactor(
-            settings.value(QString("locomotive/") + it->name, 1.0).toDouble());
+        mainWindow->setCorrectionFactor(SettingsKeys::withLocomotiveKey(
+            it->name, [this](const aide::HierarchicalId& key) {
+                return versionableSettings->value(key, 1.0).toDouble();
+            }));
     }
 }
 
@@ -190,9 +207,12 @@ void Core::calculateBBT(const QString& locName)
         calc.calculateNewBBTEntries(
             mainWindow->getUserSelectedCorrectionFactor());
 
-        QSettings settings;
-        settings.setValue(QString("locomotive/") + it->name,
-                          mainWindow->getUserSelectedCorrectionFactor());
+        SettingsKeys::withLocomotiveKey(
+            it->name, [this](const aide::HierarchicalId& key) {
+                versionableSettings->setValue(
+                    key, mainWindow->getUserSelectedCorrectionFactor());
+                return 0;
+            });
 
         createBBTModel(locName);
 

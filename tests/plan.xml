@@ -1,0 +1,7 @@
+<plan>
+  <lclist>
+    <lc id="Loco1" image="" usebbt="true" bbtsteps="5" V_min="10" V_mid="50" V_cru="100"/>
+  </lclist>
+  <bklist/>
+  <stlist/>
+</plan>

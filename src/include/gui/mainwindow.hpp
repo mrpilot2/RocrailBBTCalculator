@@ -4,24 +4,29 @@
 #include <memory>
 
 #include <QtCore/QAbstractTableModel>
-#include <QtWidgets/QMainWindow>
+#include <QtWidgets/QSplitter>
 #include <QtWidgets/QTableView>
+#include <QtWidgets/QWidget>
+
+#include <aide/settingsinterface.hpp>
 
 #include "mainwindowcontroller.hpp"
 
 namespace Ui
 {
-    class MainWindow;
+    class BBTMainWindow;
 } // namespace Ui
 
 namespace BBTCalculator
 {
     namespace Gui
     {
-        class MainWindow : public QMainWindow
+        class MainWindow : public QWidget
         {
         public:
-            explicit MainWindow(QWidget* parent = nullptr);
+            explicit MainWindow(
+                std::shared_ptr<aide::SettingsInterface> unversionableSettings,
+                QWidget* parent = nullptr);
 
             ~MainWindow() override;
 
@@ -31,7 +36,7 @@ namespace BBTCalculator
 
             void retranslateUi();
 
-            void closeEvent(QCloseEvent* event) override;
+            void saveState();
 
             auto letUserSelectWorkspaceDirectory() -> QString;
 
@@ -57,14 +62,21 @@ namespace BBTCalculator
 
             auto askUserIfExistingBBTEntriesShallBeDeleted() -> int;
 
+        protected:
+            void changeEvent(QEvent* event) override;
+
         private:
             void setupTable(QTableView* table) const;
 
-            void setupMenuActions();
+            void saveHeader(QTableView* table, const char* group);
+            void restoreHeader(QTableView* table, const char* group);
+            void restoreSplitter(QSplitter* splitter, const char* group);
 
             void connectSignals();
 
-            Ui::MainWindow* ui;
+            std::shared_ptr<aide::SettingsInterface> settings;
+
+            Ui::BBTMainWindow* ui;
 
             MainWindowController* controller;
 

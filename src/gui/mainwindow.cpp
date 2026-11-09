@@ -1,10 +1,13 @@
 
 #include "mainwindow.hpp"
 
+#include <utility>
+
 #include <QResizeEvent>
-#include <QtCore/QSettings>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMessageBox>
+
+#include <aide/hierarchicalid.hpp>
 
 #include "bbtmodel.hpp"
 #include "blockmodel.hpp"
@@ -15,13 +18,32 @@
 using BBTCalculator::Gui::MainWindow;
 using BBTCalculator::Gui::MainWindowController;
 
-MainWindow::MainWindow(QWidget* parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+namespace
+{
+    // Key layout (mapped from legacy QSettings keys by the migration):
+    //   View/ShowMainlineOnly             <- showMainLineOnly
+    //   View/<Table>/HeaderState          <- <x>View/columnSequence
+    //   View/<Table>/HeaderGeometry       <- <x>View/geometry
+    //   View/<Splitter>/State|Geometry    <- splitter[2]/state|geometry
+    aide::HierarchicalId viewKey(const char* group, const char* name)
+    {
+        return aide::HierarchicalId("View")(group)(name);
+    }
+
+    aide::HierarchicalId showMainlineOnlyKey()
+    {
+        return aide::HierarchicalId("View")("ShowMainlineOnly");
+    }
+} // namespace
+
+MainWindow::MainWindow(
+    std::shared_ptr<aide::SettingsInterface> unversionableSettings,
+    QWidget* parent)
+    : QWidget(parent)
+    , settings{std::move(unversionableSettings)}
+    , ui(new Ui::BBTMainWindow)
 {
     ui->setupUi(this);
-
-    setupMenuActions();
 
     setupTable(ui->locList);
 
@@ -38,17 +60,8 @@ MainWindow::MainWindow(QWidget* parent)
     ui->correctionFactor->setEnabled(false);
     ui->showMainlineOnly->setEnabled(false);
 
-    QSettings settings;
-    this->restoreGeometry(settings.value("mainwindow/geometry").toByteArray());
-
-    ui->splitter->restoreState(settings.value("splitter/state").toByteArray());
-    ui->splitter_2->restoreState(
-        settings.value("splitter2/state").toByteArray());
-
-    ui->splitter->restoreGeometry(
-        settings.value("splitter/geometry").toByteArray());
-    ui->splitter_2->restoreGeometry(
-        settings.value("splitter2/geometry").toByteArray());
+    restoreSplitter(ui->splitter, "Splitter1");
+    restoreSplitter(ui->splitter_2, "Splitter2");
 }
 
 MainWindow::~MainWindow()
@@ -61,9 +74,8 @@ void MainWindow::setController(MainWindowController* contr)
     controller = contr;
     connectSignals();
 
-    QSettings settings;
     ui->showMainlineOnly->setChecked(
-        settings.value("showMainLineOnly", false).toBool());
+        settings->value(showMainlineOnlyKey(), false).toBool());
 }
 
 bool MainWindow::eventFilter(QObject* watched, QEvent* event)
@@ -90,55 +102,68 @@ void MainWindow::setupTable(QTableView* table) const
     table->horizontalHeader()->setSectionsMovable(true);
 }
 
-void MainWindow::setupMenuActions()
-{
-    ui->actionClose->setShortcuts(QKeySequence::Quit);
-    ui->actionOpenWorkspace->setShortcuts(QKeySequence::Open);
-}
-
 void MainWindow::retranslateUi()
 {
     ui->retranslateUi(this);
+
+    // Header captions come from the models' headerData(); force a repaint.
+    for (auto* table : {ui->blockTable, ui->routesTable, ui->bbtTable}) {
+        table->horizontalHeader()->viewport()->update();
+    }
+    ui->locList->horizontalHeader()->viewport()->update();
 }
 
-void MainWindow::closeEvent(QCloseEvent* event)
+void MainWindow::changeEvent(QEvent* event)
 {
-    QSettings settings;
-    settings.setValue("mainwindow/geometry", this->saveGeometry());
+    if (event->type() == QEvent::LanguageChange) { retranslateUi(); }
+    QWidget::changeEvent(event);
+}
 
-    settings.setValue("showMainLineOnly", ui->showMainlineOnly->isChecked());
+void MainWindow::saveHeader(QTableView* table, const char* group)
+{
+    settings->setValue(viewKey(group, "HeaderState"),
+                       table->horizontalHeader()->saveState());
+    settings->setValue(viewKey(group, "HeaderGeometry"),
+                       table->horizontalHeader()->saveGeometry());
+}
 
-    settings.setValue("locView/columnSequence",
-                      ui->locList->horizontalHeader()->saveState());
-    settings.setValue("blockView/columnSequence",
-                      ui->blockTable->horizontalHeader()->saveState());
-    settings.setValue("routesView/columnSequence",
-                      ui->routesTable->horizontalHeader()->saveState());
-    settings.setValue("bbtView/columnSequence",
-                      ui->bbtTable->horizontalHeader()->saveState());
+void MainWindow::restoreHeader(QTableView* table, const char* group)
+{
+    table->horizontalHeader()->restoreState(
+        settings->value(viewKey(group, "HeaderState")).toByteArray());
+    table->horizontalHeader()->restoreGeometry(
+        settings->value(viewKey(group, "HeaderGeometry")).toByteArray());
+    setupTable(table);
+}
 
-    settings.setValue("locView/geometry",
-                      ui->locList->horizontalHeader()->saveGeometry());
-    settings.setValue("blockView/geometry",
-                      ui->blockTable->horizontalHeader()->saveGeometry());
-    settings.setValue("routesView/geometry",
-                      ui->routesTable->horizontalHeader()->saveGeometry());
-    settings.setValue("bbtView/geometry",
-                      ui->bbtTable->horizontalHeader()->saveGeometry());
+void MainWindow::restoreSplitter(QSplitter* splitter, const char* group)
+{
+    splitter->restoreState(
+        settings->value(viewKey(group, "State")).toByteArray());
+    splitter->restoreGeometry(
+        settings->value(viewKey(group, "Geometry")).toByteArray());
+}
 
-    settings.setValue("splitter/state", ui->splitter->saveState());
-    settings.setValue("splitter2/state", ui->splitter_2->saveState());
+void MainWindow::saveState()
+{
+    settings->setValue(showMainlineOnlyKey(),
+                       ui->showMainlineOnly->isChecked());
 
-    settings.setValue("splitter/geometry", ui->splitter->saveGeometry());
-    settings.setValue("splitter2/geometry", ui->splitter_2->saveGeometry());
+    saveHeader(ui->locList, "LocTable");
+    saveHeader(ui->blockTable, "BlockTable");
+    saveHeader(ui->routesTable, "RoutesTable");
+    saveHeader(ui->bbtTable, "BBTTable");
 
-    QWidget::closeEvent(event);
+    for (auto [splitter, group] : {std::pair{ui->splitter, "Splitter1"},
+                                   std::pair{ui->splitter_2, "Splitter2"}}) {
+        settings->setValue(viewKey(group, "State"), splitter->saveState());
+        settings->setValue(viewKey(group, "Geometry"),
+                           splitter->saveGeometry());
+    }
 }
 
 void MainWindow::connectSignals()
 {
-    connect(ui->actionOpenWorkspace, &QAction::triggered, controller,
-            &MainWindowController::onOpenWorkspaceClicked);
     connect(ui->showMainlineOnly, &QCheckBox::checkStateChanged, controller,
             &MainWindowController::onFilterMainlineStateChanged);
     connect(ui->calculateBBT, &QPushButton::clicked, controller,
@@ -164,7 +189,8 @@ void MainWindow::notifyUserSelectedDirectoryDoesNotExist()
 
 void MainWindow::showRootPath(const QString& path)
 {
-    this->setWindowTitle(path);
+    window()->setWindowTitle(QApplication::applicationDisplayName() + " - " +
+                             path);
 }
 
 void MainWindow::setLocTableModel(QAbstractItemModel* model)
@@ -177,12 +203,7 @@ void MainWindow::setLocTableModel(QAbstractItemModel* model)
     connect(ui->locList->selectionModel(),
             &QItemSelectionModel::selectionChanged, controller,
             &MainWindowController::onLocSelectionChanged);
-    QSettings settings;
-    ui->locList->horizontalHeader()->restoreState(
-        settings.value("locView/columnSequence").toByteArray());
-    ui->locList->horizontalHeader()->restoreGeometry(
-        settings.value("locView/geometry").toByteArray());
-    setupTable(ui->locList);
+    restoreHeader(ui->locList, "LocTable");
 }
 
 void MainWindow::setBlockTableModel(QAbstractItemModel* model)
@@ -196,12 +217,7 @@ void MainWindow::setBlockTableModel(QAbstractItemModel* model)
     controller->onFilterMainlineStateChanged(
         ui->showMainlineOnly->checkState());
 
-    QSettings settings;
-    ui->blockTable->horizontalHeader()->restoreState(
-        settings.value("blockView/columnSequence").toByteArray());
-    ui->blockTable->horizontalHeader()->restoreGeometry(
-        settings.value("blockView/geometry").toByteArray());
-    setupTable(ui->blockTable);
+    restoreHeader(ui->blockTable, "BlockTable");
 }
 
 void MainWindow::setRouteTableModel(QAbstractItemModel* model)
@@ -211,12 +227,7 @@ void MainWindow::setRouteTableModel(QAbstractItemModel* model)
     ui->routesTable->resizeColumnsToContents();
     ui->routesTable->sortByColumn(static_cast<int>(RouteViewColumns::NAME),
                                   Qt::AscendingOrder);
-    QSettings settings;
-    ui->routesTable->horizontalHeader()->restoreState(
-        settings.value("routesView/columnSequence").toByteArray());
-    ui->routesTable->horizontalHeader()->restoreGeometry(
-        settings.value("routesView/geometry").toByteArray());
-    setupTable(ui->routesTable);
+    restoreHeader(ui->routesTable, "RoutesTable");
 }
 
 void MainWindow::displayLocImage(QPixmap locImage)
@@ -245,12 +256,7 @@ void BBTCalculator::Gui::MainWindow::setBBTTableModel(QAbstractItemModel* model)
     ui->correctionFactorDescription->setEnabled(true);
     ui->correctionFactor->setEnabled(true);
 
-    QSettings settings;
-    ui->bbtTable->horizontalHeader()->restoreState(
-        settings.value("bbtView/columnSequence").toByteArray());
-    ui->bbtTable->horizontalHeader()->restoreGeometry(
-        settings.value("bbtView/geometry").toByteArray());
-    setupTable(ui->bbtTable);
+    restoreHeader(ui->bbtTable, "BBTTable");
 }
 
 void MainWindow::setLocNameInBBTBox(const QString& locName)

@@ -96,7 +96,7 @@
     </message>
 </context>
 <context>
-    <name>MainWindow</name>
+    <name>BBTMainWindow</name>
     <message>
         <location filename="../forms/mainwindow.ui" line="25"/>
         <source>Locomotive</source>
@@ -172,6 +172,19 @@ Maximum value: 1,5</source>
     <message>
         <location filename="../forms/mainwindow.ui" line="205"/>
         <source>Open workspace</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../forms/mainwindow.ui" line="208"/>
+        <source>Opens an existing Rocrail workspace</source>
+        <translation></translation>
+    </message>
+</context>
+<context>
+    <name>MainWindow</name>
+    <message>
+        <location filename="../forms/mainwindow.ui" line="202"/>
+        <source>&amp;Open workspace</source>
         <translation></translation>
     </message>
     <message>

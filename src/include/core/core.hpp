@@ -3,8 +3,10 @@
 
 #include <memory>
 
+#include <QtCore/QPointer>
 #include <QtCore/QSortFilterProxyModel>
-#include <QtCore/QTranslator>
+
+#include <aide/settingsinterface.hpp>
 
 #include "gui/bbtmodel.hpp"
 #include "gui/blockmodel.hpp"
@@ -29,11 +31,27 @@ namespace BBTCalculator
         class Core
         {
         public:
-            Core();
+            /// @param versionableSettings   store for data worth committing
+            ///        to version control (per-loco correction factors)
+            /// @param unversionableSettings machine-local store (workspace
+            ///        directory)
+            Core(
+                std::shared_ptr<aide::SettingsInterface> versionableSettings,
+                std::shared_ptr<aide::SettingsInterface> unversionableSettings);
+
+            ~Core();
+
+            Core(const Core&)            = delete;
+            Core& operator=(const Core&) = delete;
+
+            auto centralWidget() const -> QWidget*;
 
             void initializeApplication(Gui::MainWindowController& contr);
 
             void letUserSelectWorkspace();
+
+            /// Loads the workspace and remembers the directory.
+            void openWorkspace(const QString& directory);
 
             void displayImageForLocName(const QString& locName);
 
@@ -48,8 +66,6 @@ namespace BBTCalculator
             void calculateBBT(const QString& locName);
 
         private:
-            void setupTranslator();
-
             void filterBlockAndRouteByMainline(QSortFilterProxyModel* model,
                                                int column);
 
@@ -57,9 +73,13 @@ namespace BBTCalculator
 
             void loadWorkspace(const QString& userSelectedDirectory);
 
-            std::shared_ptr<Gui::MainWindow> mainWindow;
+            // Owned by the aIDE main window once embedded as central widget;
+            // deleted in ~Core only while still unparented.
+            QPointer<Gui::MainWindow> mainWindow;
 
-            QTranslator translator;
+            std::shared_ptr<aide::SettingsInterface> versionableSettings;
+            std::shared_ptr<aide::SettingsInterface> unversionableSettings;
+
             Workspace workspace;
             std::unique_ptr<Gui::LocModel> locModel;
             std::unique_ptr<Gui::BlockModel> blockModel;

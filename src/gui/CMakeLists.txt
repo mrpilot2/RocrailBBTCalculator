@@ -45,6 +45,7 @@ TARGET_INCLUDE_DIRECTORIES(bbtCalculatorGui
 TARGET_LINK_LIBRARIES(bbtCalculatorGui
   PUBLIC
     Qt6::Widgets
+    Aide::AideApplication
 )
 
 TARGET_COMPILE_FEATURES(bbtCalculatorGui
