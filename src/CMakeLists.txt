@@ -2,8 +2,6 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.12)
 
 INCLUDE(GNUInstallDirs)
 
-FIND_PACKAGE(Qt6 COMPONENTS Widgets Xml REQUIRED)
-
 ADD_SUBDIRECTORY(core)
 ADD_SUBDIRECTORY(gui)
 
@@ -14,6 +12,8 @@ QT_ADD_EXECUTABLE(rocrailBBTCalculator MACOSX_BUNDLE WIN32
 TARGET_LINK_LIBRARIES(rocrailBBTCalculator
   PRIVATE
     Qt6::Widgets
+
+    Aide::AideApplication
 
     bbtCalculatorCore
 )
