@@ -3,9 +3,9 @@
 #include <memory>
 #include <utility>
 
-#include <aide/hierarchicalid.hpp>
-
 #include <QtWidgets/QtWidgets>
+
+#include <aide/hierarchicalid.hpp>
 
 #include "calculation.hpp"
 #include "gui/imagesortfilterproxymodel.hpp"
@@ -19,9 +19,8 @@ namespace SettingsKeys = BBTCalculator::Core::SettingsKeys;
 using BBTCalculator::Gui::MainWindow;
 using BBTCalculator::Gui::MainWindowController;
 
-Core::Core::Core(
-    std::shared_ptr<aide::SettingsInterface> versionableSettings,
-    std::shared_ptr<aide::SettingsInterface> unversionableSettings)
+Core::Core::Core(std::shared_ptr<aide::SettingsInterface> versionableSettings,
+                 std::shared_ptr<aide::SettingsInterface> unversionableSettings)
     : mainWindow{new MainWindow(unversionableSettings)}
     , versionableSettings{std::move(versionableSettings)}
     , unversionableSettings{std::move(unversionableSettings)}
@@ -50,7 +49,8 @@ void Core::initializeApplication(MainWindowController& contr)
 void BBTCalculator::Core::Core::loadLastOpenWorkspace()
 {
     const QString workspaceDirectory =
-        unversionableSettings->value(SettingsKeys::workspaceDirectory(), "").toString();
+        unversionableSettings->value(SettingsKeys::workspaceDirectory(), "")
+            .toString();
 
     loadWorkspace(workspaceDirectory);
 }
@@ -67,7 +67,8 @@ void Core::openWorkspace(const QString& directory)
 {
     loadWorkspace(directory);
 
-    unversionableSettings->setValue(SettingsKeys::workspaceDirectory(), directory);
+    unversionableSettings->setValue(SettingsKeys::workspaceDirectory(),
+                                    directory);
 }
 
 void Core::loadWorkspace(const QString& userSelectedDirectory)

@@ -63,9 +63,8 @@ bool SettingsMigration::run()
         if (unversionable->value(markerKey(), false).toBool()) { return true; }
 
         if (legacy.contains("workspaceDirectory")) {
-            unversionable->setValue(
-                SettingsKeys::workspaceDirectory(),
-                legacy.value("workspaceDirectory"));
+            unversionable->setValue(SettingsKeys::workspaceDirectory(),
+                                    legacy.value("workspaceDirectory"));
         }
 
         for (const auto& mapping : unversionableMappings) {
@@ -79,8 +78,7 @@ bool SettingsMigration::run()
         for (const QString& key : legacy.allKeys()) {
             if (!key.startsWith(prefix)) { continue; }
             SettingsKeys::withLocomotiveKey(
-                key.mid(prefix.size()),
-                [&](const aide::HierarchicalId& id) {
+                key.mid(prefix.size()), [&](const aide::HierarchicalId& id) {
                     versionable->setValue(id, legacy.value(key).toDouble());
                     return 0;
                 });
@@ -91,7 +89,8 @@ bool SettingsMigration::run()
         unversionable->setValue(markerKey(), true);
         unversionable->save();
         return true;
-    } catch (const std::exception&) {
+    }
+    catch (const std::exception&) {
         return false;
     }
 }

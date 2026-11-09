@@ -1,7 +1,7 @@
-#include <catch2/catch_test_macros.hpp>
-
 #include <memory>
 #include <stdexcept>
+
+#include <catch2/catch_test_macros.hpp>
 
 #include <QtCore/QByteArray>
 #include <QtCore/QSettings>
@@ -102,18 +102,20 @@ TEST_CASE("Populated legacy settings are migrated to the right stores")
     SECTION("correction factors go to the versionable store only")
     {
         REQUIRE(f.versionable->values.size() == 2);
-        CHECK(f.versionable->values.at(name("Locomotive", "BR 80")).toDouble()
-              == 1.25);
-        CHECK(f.versionable->values.at(name("Locomotive", "V 200")).toDouble()
-              == 0.8);
+        CHECK(
+            f.versionable->values.at(name("Locomotive", "BR 80")).toDouble() ==
+            1.25);
+        CHECK(
+            f.versionable->values.at(name("Locomotive", "V 200")).toDouble() ==
+            0.8);
         CHECK_FALSE(f.unversionable->contains(name("Locomotive", "BR 80")));
     }
 
     SECTION("everything else goes to the unversionable store")
     {
         auto& v = f.unversionable->values;
-        CHECK(v.at(name("Workspace", "Directory")).toString()
-              == "/home/me/rocrail");
+        CHECK(v.at(name("Workspace", "Directory")).toString() ==
+              "/home/me/rocrail");
         CHECK(v.at(name("View", "ShowMainlineOnly")).toBool());
 
         const std::pair<const char*, const char*> tables[] = {
@@ -123,16 +125,16 @@ TEST_CASE("Populated legacy settings are migrated to the right stores")
             {"BBTTable", "bbtView"}};
         for (const auto& [table, legacyName] : tables) {
             INFO(table);
-            CHECK(v.at(name("View", table, "HeaderState")).toByteArray()
-                  == blob);
-            CHECK(v.at(name("View", table, "HeaderGeometry")).toByteArray()
-                  == blob);
+            CHECK(v.at(name("View", table, "HeaderState")).toByteArray() ==
+                  blob);
+            CHECK(v.at(name("View", table, "HeaderGeometry")).toByteArray() ==
+                  blob);
         }
         for (const char* splitter : {"Splitter1", "Splitter2"}) {
             INFO(splitter);
             CHECK(v.at(name("View", splitter, "State")).toByteArray() == blob);
-            CHECK(v.at(name("View", splitter, "Geometry")).toByteArray()
-                  == blob);
+            CHECK(v.at(name("View", splitter, "Geometry")).toByteArray() ==
+                  blob);
         }
     }
 
@@ -150,8 +152,8 @@ TEST_CASE("Populated legacy settings are migrated to the right stores")
     SECTION("legacy keys remain untouched")
     {
         CHECK(f.legacy.allKeys().size() == 17);
-        CHECK(f.legacy.value("workspaceDirectory").toString()
-              == "/home/me/rocrail");
+        CHECK(f.legacy.value("workspaceDirectory").toString() ==
+              "/home/me/rocrail");
         CHECK(f.legacy.contains("mainwindow/geometry"));
         CHECK(f.legacy.contains("locomotive/BR 80"));
     }
@@ -222,5 +224,6 @@ TEST_CASE("A failing save of the versionable store leaves the marker unset")
     SettingsMigration migration{f.legacy, failingVersionable, f.unversionable};
 
     CHECK_FALSE(migration.run());
-    CHECK_FALSE(f.unversionable->contains(SettingsMigration::markerKey().name()));
+    CHECK_FALSE(
+        f.unversionable->contains(SettingsMigration::markerKey().name()));
 }
