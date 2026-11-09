@@ -62,6 +62,9 @@ namespace BBTCalculator
 
             auto askUserIfExistingBBTEntriesShallBeDeleted() -> int;
 
+        protected:
+            void changeEvent(QEvent* event) override;
+
         private:
             void setupTable(QTableView* table) const;
 

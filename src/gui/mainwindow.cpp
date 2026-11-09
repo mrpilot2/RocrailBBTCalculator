@@ -97,7 +97,21 @@ void MainWindow::setupTable(QTableView* table) const
 }
 
 void MainWindow::retranslateUi()
-{ ui->retranslateUi(this); }
+{
+    ui->retranslateUi(this);
+
+    // Header captions come from the models' headerData(); force a repaint.
+    for (auto* table : {ui->blockTable, ui->routesTable, ui->bbtTable}) {
+        table->horizontalHeader()->viewport()->update();
+    }
+    ui->locList->horizontalHeader()->viewport()->update();
+}
+
+void MainWindow::changeEvent(QEvent* event)
+{
+    if (event->type() == QEvent::LanguageChange) { retranslateUi(); }
+    QWidget::changeEvent(event);
+}
 
 void MainWindow::saveHeader(QTableView* table, const char* group)
 {

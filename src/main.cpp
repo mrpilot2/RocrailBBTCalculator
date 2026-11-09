@@ -1,4 +1,5 @@
 
+#include <QtCore/QDir>
 #include <QtGui/QAction>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QMenu>
@@ -6,6 +7,7 @@
 #include <aide/aideconstants.hpp>
 #include <aide/aidesettingsprovider.hpp>
 #include <aide/application.hpp>
+#include <aide/gui/translatorinterface.hpp>
 #include <aide/hierarchicalid.hpp>
 #include <aide/menucontainerinterface.hpp>
 
@@ -25,6 +27,9 @@ int main(int argc, char* argv[])
     const aide::Application application(argc, argv);
 
     Q_INIT_RESOURCE(application);
+
+    application.translator()->addAdditionalTranslationFilePath(
+        QDir(":/translations"), QLatin1String("rocrailBBT"));
 
     QApplication::setWindowIcon(QIcon(":/icons/appicon"));
     Core core{aide::AideSettingsProvider::versionableSettings(),
