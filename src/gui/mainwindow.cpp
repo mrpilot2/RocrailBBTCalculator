@@ -17,7 +17,7 @@ using BBTCalculator::Gui::MainWindowController;
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+    , ui(new Ui::BBTMainWindow)
 {
     ui->setupUi(this);
 

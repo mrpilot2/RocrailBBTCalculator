@@ -11,7 +11,7 @@
 
 namespace Ui
 {
-    class MainWindow;
+    class BBTMainWindow;
 } // namespace Ui
 
 namespace BBTCalculator
@@ -64,7 +64,7 @@ namespace BBTCalculator
 
             void connectSignals();
 
-            Ui::MainWindow* ui;
+            Ui::BBTMainWindow* ui;
 
             MainWindowController* controller;
 
