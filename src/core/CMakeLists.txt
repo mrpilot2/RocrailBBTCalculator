@@ -21,6 +21,7 @@ TARGET_INCLUDE_DIRECTORIES(bbtCalculatorCore
 TARGET_LINK_LIBRARIES(bbtCalculatorCore
   PUBLIC
     Aide::AideApplication
+    Aide::AideCore
   PRIVATE
     Qt6::Xml
 

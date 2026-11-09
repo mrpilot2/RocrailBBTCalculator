@@ -12,6 +12,7 @@ TARGET_LINK_LIBRARIES(ut.rocrailBBTCalculator
     Qt6::Widgets
 
     Aide::AideApplication
+    Aide::AideCore
 
     bbtCalculatorCore
 )
