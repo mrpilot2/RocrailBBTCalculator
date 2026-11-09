@@ -5,7 +5,6 @@
 
 #include <QtCore/QPointer>
 #include <QtCore/QSortFilterProxyModel>
-#include <QtCore/QTranslator>
 
 #include "gui/bbtmodel.hpp"
 #include "gui/blockmodel.hpp"
@@ -56,8 +55,6 @@ namespace BBTCalculator
             void calculateBBT(const QString& locName);
 
         private:
-            void setupTranslator();
-
             void filterBlockAndRouteByMainline(QSortFilterProxyModel* model,
                                                int column);
 
@@ -69,7 +66,6 @@ namespace BBTCalculator
             // deleted in ~Core only while still unparented.
             QPointer<Gui::MainWindow> mainWindow;
 
-            QTranslator translator;
             Workspace workspace;
             std::unique_ptr<Gui::LocModel> locModel;
             std::unique_ptr<Gui::BlockModel> blockModel;

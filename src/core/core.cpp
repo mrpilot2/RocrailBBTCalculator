@@ -29,7 +29,6 @@ auto Core::centralWidget() const -> QWidget*
 void Core::initializeApplication(MainWindowController& contr)
 {
     mainWindow->setController(&contr);
-    setupTranslator();
 
     QObject::connect(qApp, &QApplication::aboutToQuit, mainWindow,
                      [window = mainWindow]() {
@@ -37,15 +36,6 @@ void Core::initializeApplication(MainWindowController& contr)
                      });
 
     loadLastOpenWorkspace();
-}
-
-void Core::setupTranslator()
-{
-    if (translator.load(QLocale(), QLatin1String("rocrailBBT"),
-                        QLatin1String("_"), QLatin1String(":/translations"))) {
-        QApplication::installTranslator(&translator);
-        mainWindow->retranslateUi();
-    }
 }
 
 void BBTCalculator::Core::Core::loadLastOpenWorkspace()
