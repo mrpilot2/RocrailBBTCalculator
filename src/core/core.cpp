@@ -12,16 +12,12 @@
 #include "gui/mainwindow.hpp"
 #include "gui/mainwindowcontroller.hpp"
 #include "planparser.hpp"
+#include "settingskeys.hpp"
 
 using BBTCalculator::Core::Core;
+namespace SettingsKeys = BBTCalculator::Core::SettingsKeys;
 using BBTCalculator::Gui::MainWindow;
 using BBTCalculator::Gui::MainWindowController;
-
-namespace
-{
-    const auto workspaceDirectoryKey()
-    { return aide::HierarchicalId("Workspace")("Directory"); }
-} // namespace
 
 Core::Core::Core(
     std::shared_ptr<aide::SettingsInterface> versionableSettings,
@@ -54,7 +50,7 @@ void Core::initializeApplication(MainWindowController& contr)
 void BBTCalculator::Core::Core::loadLastOpenWorkspace()
 {
     const QString workspaceDirectory =
-        unversionableSettings->value(workspaceDirectoryKey(), "").toString();
+        unversionableSettings->value(SettingsKeys::workspaceDirectory(), "").toString();
 
     loadWorkspace(workspaceDirectory);
 }
@@ -71,7 +67,7 @@ void Core::openWorkspace(const QString& directory)
 {
     loadWorkspace(directory);
 
-    unversionableSettings->setValue(workspaceDirectoryKey(), directory);
+    unversionableSettings->setValue(SettingsKeys::workspaceDirectory(), directory);
 }
 
 void Core::loadWorkspace(const QString& userSelectedDirectory)
@@ -147,12 +143,10 @@ void Core::createBBTModel(const QString& locName)
 
         mainWindow->setLocNameInBBTBox(it->name);
 
-        const QByteArray locNameUtf8{it->name.toUtf8()};
-        mainWindow->setCorrectionFactor(
-            versionableSettings
-                ->value(aide::HierarchicalId("Locomotive")(locNameUtf8.constData()),
-                        1.0)
-                .toDouble());
+        mainWindow->setCorrectionFactor(SettingsKeys::withLocomotiveKey(
+            it->name, [this](const aide::HierarchicalId& key) {
+                return versionableSettings->value(key, 1.0).toDouble();
+            }));
     }
 }
 
@@ -206,10 +200,12 @@ void Core::calculateBBT(const QString& locName)
         calc.calculateNewBBTEntries(
             mainWindow->getUserSelectedCorrectionFactor());
 
-        const QByteArray locNameUtf8{it->name.toUtf8()};
-        versionableSettings->setValue(
-            aide::HierarchicalId("Locomotive")(locNameUtf8.constData()),
-            mainWindow->getUserSelectedCorrectionFactor());
+        SettingsKeys::withLocomotiveKey(
+            it->name, [this](const aide::HierarchicalId& key) {
+                versionableSettings->setValue(
+                    key, mainWindow->getUserSelectedCorrectionFactor());
+                return 0;
+            });
 
         createBBTModel(locName);
 

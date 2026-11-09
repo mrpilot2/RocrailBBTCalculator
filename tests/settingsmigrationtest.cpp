@@ -33,6 +33,12 @@ namespace
         int remaining;
     };
 
+    class SaveFailingSettings : public InMemorySettings
+    {
+    public:
+        void save() override { throw std::runtime_error("save failed"); }
+    };
+
     const QByteArray blob{"\x01\x02\x03", 3};
 
     struct Fixture
@@ -205,4 +211,16 @@ TEST_CASE("A failure mid-run leaves the marker unset so the next run retries")
     CHECK(failing->contains(SettingsMigration::markerKey().name()));
     CHECK(failing->contains(name("Workspace", "Directory")));
     CHECK(failing->contains(name("View", "Splitter2", "Geometry")));
+}
+
+TEST_CASE("A failing save of the versionable store leaves the marker unset")
+{
+    Fixture f;
+    f.populateLegacy();
+
+    auto failingVersionable = std::make_shared<SaveFailingSettings>();
+    SettingsMigration migration{f.legacy, failingVersionable, f.unversionable};
+
+    CHECK_FALSE(migration.run());
+    CHECK_FALSE(f.unversionable->contains(SettingsMigration::markerKey().name()));
 }

@@ -6,7 +6,10 @@
 #include <QtCore/QByteArray>
 #include <QtCore/QString>
 
+#include "settingskeys.hpp"
+
 using BBTCalculator::Core::SettingsMigration;
+namespace SettingsKeys = BBTCalculator::Core::SettingsKeys;
 
 namespace
 {
@@ -61,7 +64,7 @@ bool SettingsMigration::run()
 
         if (legacy.contains("workspaceDirectory")) {
             unversionable->setValue(
-                aide::HierarchicalId("Workspace")("Directory"),
+                SettingsKeys::workspaceDirectory(),
                 legacy.value("workspaceDirectory"));
         }
 
@@ -75,16 +78,18 @@ bool SettingsMigration::run()
         const QString prefix{"locomotive/"};
         for (const QString& key : legacy.allKeys()) {
             if (!key.startsWith(prefix)) { continue; }
-            // HierarchicalId keeps raw pointers, so the name must outlive it
-            const QByteArray name{key.mid(prefix.size()).toUtf8()};
-            versionable->setValue(
-                aide::HierarchicalId("Locomotive")(name.constData()),
-                legacy.value(key).toDouble());
+            SettingsKeys::withLocomotiveKey(
+                key.mid(prefix.size()),
+                [&](const aide::HierarchicalId& id) {
+                    versionable->setValue(id, legacy.value(key).toDouble());
+                    return 0;
+                });
         }
 
+        // Persist the marker only after everything else was saved.
+        versionable->save();
         unversionable->setValue(markerKey(), true);
         unversionable->save();
-        versionable->save();
         return true;
     } catch (const std::exception&) {
         return false;
