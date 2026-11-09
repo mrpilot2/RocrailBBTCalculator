@@ -3,7 +3,10 @@
 
 #include <memory>
 
+#include <aide/settingsinterface.hpp>
+
 #include <QtCore/QAbstractTableModel>
+#include <QtWidgets/QSplitter>
 #include <QtWidgets/QTableView>
 #include <QtWidgets/QWidget>
 
@@ -21,7 +24,9 @@ namespace BBTCalculator
         class MainWindow : public QWidget
         {
         public:
-            explicit MainWindow(QWidget* parent = nullptr);
+            explicit MainWindow(
+                std::shared_ptr<aide::SettingsInterface> unversionableSettings,
+                QWidget* parent = nullptr);
 
             ~MainWindow() override;
 
@@ -60,7 +65,13 @@ namespace BBTCalculator
         private:
             void setupTable(QTableView* table) const;
 
+            void saveHeader(QTableView* table, const char* group);
+            void restoreHeader(QTableView* table, const char* group);
+            void restoreSplitter(QSplitter* splitter, const char* group);
+
             void connectSignals();
+
+            std::shared_ptr<aide::SettingsInterface> settings;
 
             Ui::BBTMainWindow* ui;
 

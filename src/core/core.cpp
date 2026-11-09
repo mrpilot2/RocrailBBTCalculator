@@ -26,7 +26,7 @@ namespace
 Core::Core::Core(
     std::shared_ptr<aide::SettingsInterface> versionableSettings,
     std::shared_ptr<aide::SettingsInterface> unversionableSettings)
-    : mainWindow{new MainWindow()}
+    : mainWindow{new MainWindow(unversionableSettings)}
     , versionableSettings{std::move(versionableSettings)}
     , unversionableSettings{std::move(unversionableSettings)}
 {}

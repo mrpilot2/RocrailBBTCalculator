@@ -7,6 +7,7 @@
 #include <QtCore/QSettings>
 #include <QtCore/QTemporaryDir>
 #include <QtWidgets/QApplication>
+#include <QtWidgets/QCheckBox>
 #include <QtWidgets/QDoubleSpinBox>
 
 #include "core/core.hpp"
@@ -119,4 +120,35 @@ TEST_CASE("Calculating a BBT writes the correction factor to the versionable "
 
     REQUIRE(f.versionable->values["Locomotive/Loco1"].toDouble() == 0.75);
     REQUIRE_FALSE(f.unversionable->contains("Locomotive/Loco1"));
+}
+
+
+TEST_CASE("Mainline toggle and splitter layout are stored in the "
+          "unversionable store on quit and restored on next start")
+{
+    Fixture f;
+    {
+        Core core{f.versionable, f.unversionable};
+        f.controller.setCore(&core);
+        core.initializeApplication(f.controller);
+        core.centralWidget()
+            ->findChild<QCheckBox*>("showMainlineOnly")
+            ->setChecked(true);
+
+        QMetaObject::invokeMethod(QCoreApplication::instance(), "aboutToQuit");
+    }
+
+    REQUIRE(f.unversionable->contains("View/ShowMainlineOnly"));
+    REQUIRE(f.unversionable->contains("View/Splitter1/State"));
+    REQUIRE(f.unversionable->contains("View/LocTable/HeaderState"));
+    REQUIRE(f.versionable->empty());
+
+    MainWindowController controller2;
+    Core core2{f.versionable, f.unversionable};
+    controller2.setCore(&core2);
+    core2.initializeApplication(controller2);
+
+    REQUIRE(core2.centralWidget()
+                ->findChild<QCheckBox*>("showMainlineOnly")
+                ->isChecked());
 }
