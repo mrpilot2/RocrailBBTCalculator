@@ -1,8 +1,12 @@
 
+#include <QtGui/QAction>
 #include <QtWidgets/QApplication>
-#include <QtWidgets/QMainWindow>
+#include <QtWidgets/QMenu>
 
+#include <aide/aideconstants.hpp>
 #include <aide/application.hpp>
+#include <aide/hierarchicalid.hpp>
+#include <aide/menucontainerinterface.hpp>
 
 #include "core/core.hpp"
 #include "gui/mainwindowcontroller.hpp"
@@ -28,6 +32,33 @@ int main(int argc, char* argv[])
     controller.setCore(&core);
 
     core.initializeApplication(controller);
+
+    const auto mainWindow = application.mainWindow();
+    mainWindow->setCentralWidget(core.centralWidget());
+
+    const auto actionRegistry = application.actionRegistry();
+    if (const auto fileMenu = actionRegistry->getMenuContainer(
+            aide::constants::CONSTANTS().MENU_FILE);
+        fileMenu.has_value()) {
+        auto* menu                = fileMenu.value()->menu();
+        auto* actionOpenWorkspace = new QAction(
+            QApplication::translate("MainWindow", "&Open workspace"), menu);
+        actionOpenWorkspace->setStatusTip(QApplication::translate(
+            "MainWindow", "Opens an existing Rocrail workspace"));
+        QObject::connect(actionOpenWorkspace, &QAction::triggered, &controller,
+                         &MainWindowController::onOpenWorkspaceClicked);
+
+        menu->insertAction(
+            actionRegistry->action(aide::constants::CONSTANTS().FILE_SETTINGS)
+                .value(),
+            actionOpenWorkspace);
+        actionRegistry->registerAction(
+            actionOpenWorkspace,
+            aide::HierarchicalId("Main Menu")("File")("Open Workspace"),
+            {QKeySequence(QKeySequence::Open)});
+    }
+
+    mainWindow->show();
 
     return aide::Application::exec();
 }

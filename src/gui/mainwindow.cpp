@@ -16,12 +16,10 @@ using BBTCalculator::Gui::MainWindow;
 using BBTCalculator::Gui::MainWindowController;
 
 MainWindow::MainWindow(QWidget* parent)
-    : QMainWindow(parent)
+    : QWidget(parent)
     , ui(new Ui::BBTMainWindow)
 {
     ui->setupUi(this);
-
-    setupMenuActions();
 
     setupTable(ui->locList);
 
@@ -39,7 +37,6 @@ MainWindow::MainWindow(QWidget* parent)
     ui->showMainlineOnly->setEnabled(false);
 
     QSettings settings;
-    this->restoreGeometry(settings.value("mainwindow/geometry").toByteArray());
 
     ui->splitter->restoreState(settings.value("splitter/state").toByteArray());
     ui->splitter_2->restoreState(
@@ -90,22 +87,14 @@ void MainWindow::setupTable(QTableView* table) const
     table->horizontalHeader()->setSectionsMovable(true);
 }
 
-void MainWindow::setupMenuActions()
-{
-    ui->actionClose->setShortcuts(QKeySequence::Quit);
-    ui->actionOpenWorkspace->setShortcuts(QKeySequence::Open);
-}
-
 void MainWindow::retranslateUi()
 {
     ui->retranslateUi(this);
 }
 
-void MainWindow::closeEvent(QCloseEvent* event)
+void MainWindow::saveState()
 {
     QSettings settings;
-    settings.setValue("mainwindow/geometry", this->saveGeometry());
-
     settings.setValue("showMainLineOnly", ui->showMainlineOnly->isChecked());
 
     settings.setValue("locView/columnSequence",
@@ -131,14 +120,10 @@ void MainWindow::closeEvent(QCloseEvent* event)
 
     settings.setValue("splitter/geometry", ui->splitter->saveGeometry());
     settings.setValue("splitter2/geometry", ui->splitter_2->saveGeometry());
-
-    QWidget::closeEvent(event);
 }
 
 void MainWindow::connectSignals()
 {
-    connect(ui->actionOpenWorkspace, &QAction::triggered, controller,
-            &MainWindowController::onOpenWorkspaceClicked);
     connect(ui->showMainlineOnly, &QCheckBox::checkStateChanged, controller,
             &MainWindowController::onFilterMainlineStateChanged);
     connect(ui->calculateBBT, &QPushButton::clicked, controller,
@@ -164,7 +149,7 @@ void MainWindow::notifyUserSelectedDirectoryDoesNotExist()
 
 void MainWindow::showRootPath(const QString& path)
 {
-    this->setWindowTitle(path);
+    window()->setWindowTitle(path);
 }
 
 void MainWindow::setLocTableModel(QAbstractItemModel* model)

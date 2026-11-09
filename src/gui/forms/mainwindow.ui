@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>BBTMainWindow</class>
- <widget class="QMainWindow" name="BBTMainWindow">
+ <widget class="QWidget" name="BBTMainWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -13,8 +13,7 @@
   <property name="windowTitle">
    <string/>
   </property>
-  <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout_4">
+  <layout class="QGridLayout" name="gridLayout_4">
     <item row="0" column="0">
      <widget class="QSplitter" name="splitter_2">
       <property name="orientation">
@@ -158,77 +157,7 @@ Maximum value: 1,5</string>
      </widget>
     </item>
    </layout>
-  </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>883</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <widget class="QMenu" name="menuFile">
-    <property name="title">
-     <string>&amp;File</string>
-    </property>
-    <addaction name="actionOpenWorkspace"/>
-    <addaction name="separator"/>
-    <addaction name="actionClose"/>
-   </widget>
-   <addaction name="menuFile"/>
-  </widget>
-  <widget class="QStatusBar" name="statusbar"/>
-  <action name="actionClose">
-   <property name="icon">
-    <iconset theme="application-exit">
-     <normaloff>.</normaloff>.</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Quit</string>
-   </property>
-   <property name="iconText">
-    <string>Quit</string>
-   </property>
-   <property name="toolTip">
-    <string>Quit</string>
-   </property>
-   <property name="statusTip">
-    <string>Exit the application</string>
-   </property>
-  </action>
-  <action name="actionOpenWorkspace">
-   <property name="text">
-    <string>&amp;Open workspace</string>
-   </property>
-   <property name="iconText">
-    <string>Open workspace</string>
-   </property>
-   <property name="statusTip">
-    <string>Opens an existing Rocrail workspace</string>
-   </property>
-   <property name="shortcut">
-    <string/>
-   </property>
-  </action>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>actionClose</sender>
-   <signal>triggered()</signal>
-   <receiver>BBTMainWindow</receiver>
-   <slot>close()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>468</x>
-     <y>347</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

@@ -31,6 +31,8 @@ namespace BBTCalculator
         public:
             Core();
 
+            auto centralWidget() const -> QWidget*;
+
             void initializeApplication(Gui::MainWindowController& contr);
 
             void letUserSelectWorkspace();

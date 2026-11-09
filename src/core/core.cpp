@@ -18,11 +18,18 @@ Core::Core::Core()
     : mainWindow{new MainWindow()}
 {}
 
+auto Core::centralWidget() const -> QWidget*
+{
+    return mainWindow.get();
+}
+
 void Core::initializeApplication(MainWindowController& contr)
 {
     mainWindow->setController(&contr);
     setupTranslator();
-    mainWindow->show();
+
+    QObject::connect(qApp, &QApplication::aboutToQuit, mainWindow.get(),
+                     [this]() { mainWindow->saveState(); });
 
     loadLastOpenWorkspace();
 }

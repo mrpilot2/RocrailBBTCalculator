@@ -4,8 +4,8 @@
 #include <memory>
 
 #include <QtCore/QAbstractTableModel>
-#include <QtWidgets/QMainWindow>
 #include <QtWidgets/QTableView>
+#include <QtWidgets/QWidget>
 
 #include "mainwindowcontroller.hpp"
 
@@ -18,7 +18,7 @@ namespace BBTCalculator
 {
     namespace Gui
     {
-        class MainWindow : public QMainWindow
+        class MainWindow : public QWidget
         {
         public:
             explicit MainWindow(QWidget* parent = nullptr);
@@ -31,7 +31,7 @@ namespace BBTCalculator
 
             void retranslateUi();
 
-            void closeEvent(QCloseEvent* event) override;
+            void saveState();
 
             auto letUserSelectWorkspaceDirectory() -> QString;
 
@@ -59,8 +59,6 @@ namespace BBTCalculator
 
         private:
             void setupTable(QTableView* table) const;
-
-            void setupMenuActions();
 
             void connectSignals();
 
