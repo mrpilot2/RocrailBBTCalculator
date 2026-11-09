@@ -4,6 +4,7 @@ ADD_LIBRARY(bbtCalculatorCore STATIC)
 TARGET_SOURCES(bbtCalculatorCore
   PRIVATE
     core.cpp
+    settingsmigration.cpp
 
     calculation.cpp
     planparser.cpp

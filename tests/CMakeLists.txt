@@ -3,6 +3,7 @@ INCLUDE(Catch)
 
 QT_ADD_EXECUTABLE(ut.rocrailBBTCalculator
   coretest.cpp
+  settingsmigrationtest.cpp
 )
 
 TARGET_LINK_LIBRARIES(ut.rocrailBBTCalculator

@@ -1,5 +1,6 @@
 
 #include <QtCore/QDir>
+#include <QtCore/QSettings>
 #include <QtGui/QAction>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QMenu>
@@ -12,6 +13,7 @@
 #include <aide/menucontainerinterface.hpp>
 
 #include "core/core.hpp"
+#include "core/settingsmigration.hpp"
 #include "gui/mainwindowcontroller.hpp"
 
 using BBTCalculator::Core::Core;
@@ -32,6 +34,15 @@ int main(int argc, char* argv[])
         QDir(":/translations"), QLatin1String("rocrailBBT"));
 
     QApplication::setWindowIcon(QIcon(":/icons/appicon"));
+
+    {
+        QSettings legacySettings;
+        BBTCalculator::Core::SettingsMigration migration{
+            legacySettings, aide::AideSettingsProvider::versionableSettings(),
+            aide::AideSettingsProvider::unversionableSettings()};
+        migration.run();
+    }
+
     Core core{aide::AideSettingsProvider::versionableSettings(),
               aide::AideSettingsProvider::unversionableSettings()};
 
