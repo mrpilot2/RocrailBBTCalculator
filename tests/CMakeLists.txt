@@ -20,6 +20,7 @@ TARGET_LINK_LIBRARIES(ut.rocrailBBTCalculator
 # Core builds a (widget based) main window, so run headless
 CATCH_DISCOVER_TESTS(ut.rocrailBBTCalculator
   PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
+  DL_PATHS $<TARGET_FILE_DIR:Qt6::Core>
 )
 
 TARGET_COMPILE_DEFINITIONS(ut.rocrailBBTCalculator
