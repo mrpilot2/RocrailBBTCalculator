@@ -17,7 +17,7 @@ int main(int argc, char* argv[])
     aide::Application::setApplicationName("rocrailBBTCalculator");
     aide::Application::setApplicationDisplayName("Rocrail BBT Calculator");
 
-    aide::Application const application(argc, argv);
+    const aide::Application application(argc, argv);
 
     Q_INIT_RESOURCE(application);
 
