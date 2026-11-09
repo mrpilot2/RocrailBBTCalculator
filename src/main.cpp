@@ -4,6 +4,7 @@
 #include <QtWidgets/QMenu>
 
 #include <aide/aideconstants.hpp>
+#include <aide/aidesettingsprovider.hpp>
 #include <aide/application.hpp>
 #include <aide/hierarchicalid.hpp>
 #include <aide/menucontainerinterface.hpp>
@@ -26,7 +27,8 @@ int main(int argc, char* argv[])
     Q_INIT_RESOURCE(application);
 
     QApplication::setWindowIcon(QIcon(":/icons/appicon"));
-    Core core{};
+    Core core{aide::AideSettingsProvider::versionableSettings(),
+              aide::AideSettingsProvider::unversionableSettings()};
 
     MainWindowController controller{};
     controller.setCore(&core);
